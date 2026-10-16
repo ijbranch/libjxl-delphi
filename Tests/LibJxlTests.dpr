@@ -14,6 +14,8 @@ program LibJxlTests;
 {$APPTYPE CONSOLE}
 {$STRONGLINKTYPES ON}
 
+{$R *.res}
+
 uses
   System.SysUtils,
   DUnitX.Loggers.Console,

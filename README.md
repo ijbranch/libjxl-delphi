@@ -8,8 +8,9 @@ shared libraries; nothing is reimplemented in Pascal.
 or the JPEG committee. "JPEG XL" and "libjxl" refer to their work; problems in libjxl itself belong to
 [its issue tracker](https://github.com/libjxl/libjxl/issues).
 
+- **Version 1.0.0** of the binding (its own version, independent of libjxl's).
 - **Delphi 13 (RAD Studio 13 Florence) or later**, VCL, **Win32 and Win64**.
-- **libjxl 0.12.0 or later.** This release is tested against the official libjxl **v0.12.0** Windows release
+- **libjxl 0.12.0 or later.** Binding 1.0.0 is tested against the official libjxl **v0.12.0** Windows release
   (x64 and x86).
 - Depends only on the Delphi RTL and VCL (the package requires `rtl`, `vcl` and `vclimg`). The tests use DUnitX, which
   ships with Delphi.
