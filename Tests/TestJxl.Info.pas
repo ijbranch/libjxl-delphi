@@ -197,6 +197,7 @@ begin
 
   try
     var rInfo := Default( JxlBasicInfo );
+
     JxlEncoderInitBasicInfo( @rInfo );
     rInfo.xsize                 := 2;
     rInfo.ysize                 := 2;
@@ -206,16 +207,20 @@ begin
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderSetBasicInfo( pEncoder, @rInfo ) ), 'SetBasicInfo' );
 
     var rColour := AEncoding;
+
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderSetColorEncoding( pEncoder, @rColour ) ), 'SetColorEncoding' );
 
     var pSettings := JxlEncoderFrameSettingsCreate( pEncoder, nil );
+
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderSetFrameLossless( pSettings, JXL_TRUE ) ), 'SetFrameLossless' );
 
     var rFormat := Default( JxlPixelFormat );
+
     rFormat.num_channels := iChannels;
     rFormat.data_type    := JXL_TYPE_UINT8;
 
     var naPixels: TBytes;
+
     SetLength( naPixels, 2 * 2 * iChannels );
     FillChar( naPixels[ 0 ], Length( naPixels ), 100 );
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderAddImageFrame( pSettings, @rFormat, PByte( naPixels ),
@@ -225,6 +230,7 @@ begin
 
     var pNext: PByte           := PByte( Result );
     var iAvailable: NativeUInt := Length( Result );
+
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderProcessOutput( pEncoder, @pNext, @iAvailable ) ), 'ProcessOutput' );
     SetLength( Result, pNext - PByte( Result ) );
   finally
@@ -423,6 +429,7 @@ procedure TTestJxlInfo.Test_ReadInfo_Bike_LossyStillImage;
 begin
 
   var rInfo := ReadInfoOk( ConformanceInput( 'bike' ), 'bike' );
+
   Assert.AreEqual( Cardinal( 2048 ), rInfo.Width, 'Width' );
   Assert.AreEqual( Cardinal( 2560 ), rInfo.Height, 'Height' );
   Assert.AreEqual( Cardinal( 8 ), rInfo.BitsPerSample, 'BitsPerSample' );
@@ -445,6 +452,7 @@ procedure TTestJxlInfo.Test_ReadInfo_AlphaNonPremultiplied_ReportsStraightAlpha;
 begin
 
   var rInfo := ReadInfoOk( ConformanceInput( 'alpha_nonpremultiplied' ), 'alpha_nonpremultiplied' );
+
   Assert.AreEqual( Cardinal( 1024 ), rInfo.Width, 'Width' );
   Assert.AreEqual( Cardinal( 12 ), rInfo.BitsPerSample, 'BitsPerSample' );
   Assert.AreEqual( Cardinal( 12 ), rInfo.AlphaBits, 'AlphaBits' );
@@ -459,6 +467,7 @@ procedure TTestJxlInfo.Test_ReadInfo_AlphaPremultiplied_ReportsPremultipliedAndC
 begin
 
   var rInfo := ReadInfoOk( ConformanceInput( 'alpha_premultiplied' ), 'alpha_premultiplied' );
+
   Assert.AreEqual( Cardinal( 12 ), rInfo.BitsPerSample, 'BitsPerSample' );
   Assert.AreEqual( Cardinal( 16 ), rInfo.AlphaBits, 'AlphaBits (jxlinfo: 16)' );
   Assert.IsTrue( rInfo.AlphaPremultiplied, 'AlphaPremultiplied' );
@@ -471,6 +480,7 @@ procedure TTestJxlInfo.Test_ReadInfo_NewtonsCradle_CountsFramesAndDuration;
 begin
 
   var rInfo := ReadInfoOk( ConformanceInput( 'animation_newtons_cradle' ), 'animation_newtons_cradle' );
+
   Assert.AreEqual( Cardinal( 480 ), rInfo.Width, 'Width' );
   Assert.AreEqual( Cardinal( 360 ), rInfo.Height, 'Height' );
   Assert.IsTrue( rInfo.IsAnimated, 'IsAnimated' );
@@ -487,6 +497,7 @@ begin
 
   var naJxl := JxlTranscodeJpegToJxl( TFile.ReadAllBytes( TestDataFile( 'flower\flower.png.im_q85_420.jpg' ) ), 3 );
   var rInfo := ReadInfoOk( naJxl, 'the recompressed JPEG' );
+
   Assert.IsTrue( rInfo.HasJpegReconstruction, 'HasJpegReconstruction' );
   Assert.IsTrue( rInfo.HasContainer, 'HasContainer' );
   Assert.IsFalse( rInfo.XybEncoded, 'XybEncoded' );
@@ -495,10 +506,12 @@ begin
   Assert.AreEqual( 1, rInfo.FrameCount, 'FrameCount' );
 
   var rOptions := TJxlEncodeOptions.Default;
+
   rOptions.Lossless := True;
   rOptions.Effort   := 1;
 
   var rLossless := ReadInfoOk( JxlEncodePixels( JxlDecodePixels( naJxl ), rOptions ), 'the lossless encode' );
+
   Assert.IsFalse( rLossless.HasJpegReconstruction, 'a lossless encode holds no JPEG reconstruction data' );
 
 end;
@@ -512,15 +525,18 @@ begin
   var naData    := TFile.ReadAllBytes( sFileName );
   var rBytes    := ReadInfoOk( naData, 'splines.jxl bytes' );
   var rFile     := ReadInfoOk( sFileName, 'splines.jxl file' );
+
   oStream := TBytesStream.Create;
 
   try
     var naJunk: TBytes := [ 1, 2, 3 ];
+
     oStream.WriteBuffer( naJunk, Length( naJunk ) );
     oStream.WriteBuffer( naData, Length( naData ) );
     oStream.Position := 3;
 
     var rStream := ReadInfoOk( oStream, 'splines.jxl stream' );
+
     Assert.AreEqual( Cardinal( 2048 ), rBytes.Width, 'bytes Width' );
     Assert.AreEqual( Cardinal( 2048 ), rBytes.Height, 'bytes Height' );
     Assert.AreEqual( 1, rBytes.FrameCount, 'bytes FrameCount' );
@@ -540,6 +556,7 @@ begin
 
   var naValid := TFile.ReadAllBytes( TestDataFile( 'splines.jxl' ) );
   var naGarbage: TBytes;
+
   SetLength( naGarbage, 4096 );
   naGarbage[ 0 ] := $FF;
   naGarbage[ 1 ] := $0A;
@@ -548,6 +565,7 @@ begin
 
   var naTruncated := Copy( naValid, 0, 10 );
   var naPng       := TFile.ReadAllBytes( TestDataFile( 'splines.png' ) );
+
   AssertJxlError( procedure begin JxlReadInfo( naGarbage ); end, 'JxlDecoderProcessInput', False,
     'JxlDecoderProcessInput failed with status 1.', 'random bytes after a signature' );
   AssertJxlError( procedure begin JxlReadInfo( naTruncated ); end, 'JxlDecoderProcessInput', False,
@@ -566,6 +584,7 @@ var
 begin
 
   var naData := TranscodedFlower;
+
   Assert.IsTrue( FindBox( naData, 'jbrd', iOffset, iSize ), 'jbrd box' );
 
   // Cut 5 bytes into the jbrd box's header.
@@ -574,6 +593,7 @@ begin
 
   // A box declaring 4 bytes: less than its own 8-byte header.
   var naSmall := Copy( naData );
+
   naSmall[ iOffset ]     := 0;
   naSmall[ iOffset + 1 ] := 0;
   naSmall[ iOffset + 2 ] := 0;
@@ -583,6 +603,7 @@ begin
 
   // The last box (a codestream part) with size 0: it runs to the end of the file, which is valid.
   var sCodestream := '';
+
   iOffset := 0;
 
   while ( iOffset + 8 <= Length( naData ) ) do
@@ -602,6 +623,7 @@ begin
   Assert.IsTrue( ( sCodestream = 'jxlc' ) or ( sCodestream = 'jxlp' ), Format( 'the last box is %s', [ sCodestream ] ) );
 
   var naOpenEnded := Copy( naData );
+
   naOpenEnded[ iOffset ]     := 0;
   naOpenEnded[ iOffset + 1 ] := 0;
   naOpenEnded[ iOffset + 2 ] := 0;
@@ -611,6 +633,7 @@ begin
 
   // The codestream box switched to the large-size form (size field 1) and cut 12 bytes into its 16-byte header.
   var naCutLarge := Copy( naData, 0, iOffset + 12 );
+
   naCutLarge[ iOffset ]     := 0;
   naCutLarge[ iOffset + 1 ] := 0;
   naCutLarge[ iOffset + 2 ] := 0;
@@ -630,10 +653,12 @@ begin
 
   var naData  := TFile.ReadAllBytes( TestDataFile( 'splines.jxl' ) );
   var rBytes  := ValidateOk( naData, 'splines.jxl bytes' );
+
   oStream := TBytesStream.Create;
 
   try
     var naJunk: TBytes := [ 7, 8, 9, 10 ];
+
     oStream.WriteBuffer( naJunk, Length( naJunk ) );
     oStream.WriteBuffer( naData, Length( naData ) );
     oStream.Position := Length( naJunk );
@@ -660,6 +685,7 @@ begin
 
   var sFileName := ConformanceInput( 'bench_oriented_brg' );
   var rInfo     := ReadInfoOk( sFileName, 'bench_oriented_brg' );
+
   Assert.AreEqual( 5, rInfo.Orientation, 'Orientation (transpose)' );
   Assert.AreEqual( Cardinal( 500 ), rInfo.Width, 'stored Width' );
   Assert.AreEqual( Cardinal( 606 ), rInfo.Height, 'stored Height' );
@@ -677,10 +703,12 @@ begin
   end;
 
   var rPixels := JxlDecodePixels( TFile.ReadAllBytes( sFileName ) );
+
   Assert.AreEqual( Cardinal( 606 ), rPixels.Width, 'decoded pixels are in display orientation (width)' );
   Assert.AreEqual( Cardinal( 500 ), rPixels.Height, 'decoded pixels are in display orientation (height)' );
 
   var rSplines := ReadInfoOk( TestDataFile( 'splines.jxl' ), 'splines.jxl' );
+
   Assert.AreEqual( 1, rSplines.Orientation, 'an unoriented file reports 1' );
 
 end;
@@ -695,6 +723,7 @@ begin
   for var iI := 0 to High( EXPECTED ) do
   begin
     var rInfo := Default( TJxlInfo );
+
     rInfo.Width       := 30;
     rInfo.Height      := 20;
     rInfo.Orientation := EXPECTED[ iI, 0 ];
@@ -712,6 +741,7 @@ begin
     var sFileName := ConformanceInput( sCase );
     var rHeaders  := ReadInfoOk( sFileName, sCase );
     var rFull     := ValidateOk( sFileName, sCase );
+
     Assert.AreEqual( rHeaders.FrameCount, rFull.FrameCount, sCase + ' FrameCount' );
     Assert.AreEqual( rFull.FrameCount, rFull.DecodedFrameCount, sCase + ' every frame decoded' );
     Assert.AreEqual( 0, rHeaders.DecodedFrameCount, sCase + ' JxlReadInfo decodes nothing' );
@@ -719,9 +749,11 @@ begin
   end;
 
   var rCradle := ValidateOk( ConformanceInput( 'animation_newtons_cradle' ), 'animation_newtons_cradle' );
+
   Assert.AreEqual( 36, rCradle.DecodedFrameCount, 'newtons_cradle frames decoded' );
 
   var rJpeg := ValidateOk( TranscodedFlower, 'the recompressed JPEG' );
+
   Assert.IsTrue( rJpeg.HasJpegReconstruction, 'recompressed JPEG HasJpegReconstruction' );
   Assert.AreEqual( 1, rJpeg.DecodedFrameCount, 'recompressed JPEG frames decoded' );
 
@@ -732,6 +764,7 @@ begin
 
   var naValid := TFile.ReadAllBytes( TestDataFile( 'splines.jxl' ) );
   var naCut   := Copy( naValid, 0, Length( naValid ) div 2 );
+
   Assert.IsTrue( JxlHasSignature( naCut ), 'the cut file still starts with a signature' );
   Assert.AreEqual( 1, ValidateOk( naValid, 'the whole splines.jxl' ).DecodedFrameCount, 'the whole file validates' );
   Assert.WillNotRaiseAny( procedure begin JxlReadInfo( naCut ); end, 'JxlReadInfo cannot see a cut in the pixel data' );
@@ -758,11 +791,13 @@ var
 begin
 
   var naData := TranscodedFlower;
+
   Assert.IsTrue( ReadInfoOk( naData, 'the whole container' ).HasContainer, 'the whole container reads' );
   Assert.IsTrue( FindBox( naData, 'jbrd', iOffset, iSize ), 'jbrd box' );
 
   var naCutJbrd := Copy( naData, 0, iOffset + iSize div 2 );
   var sJbrd     := Format( 'box jbrd declares %d bytes, %d available', [ iSize, Length( naCutJbrd ) - iOffset ] );
+
   AssertJxlErrorContains( procedure begin JxlReadInfo( naCutJbrd ); end, sJbrd, 'cut inside jbrd' );
 
   var sCodestream := 'jxlc';
@@ -775,6 +810,7 @@ begin
 
   var naCutCode := Copy( naData, 0, iOffset + iSize div 2 );
   var sCode     := Format( 'box %s declares %d bytes, %d available', [ sCodestream, iSize, Length( naCutCode ) - iOffset ] );
+
   AssertJxlErrorContains( procedure begin JxlReadInfo( naCutCode ); end, sCode, 'cut inside the codestream box' );
   AssertJxlErrorContains( procedure begin JxlValidate( naCutCode ); end, sCode, 'JxlValidate, cut inside the codestream box' );
 
@@ -786,6 +822,7 @@ begin
   // Cut 100 bytes short: inside the last box's pixel data, which a header-only read skips.
   var naData   := TranscodedFlower;
   var naCutEnd := Copy( naData, 0, Length( naData ) - 100 );
+
   AssertJxlErrorContains( procedure begin JxlReadInfo( naCutEnd ); end, 'truncated: box ', 'cut 100 bytes short of the end' );
 
 end;
@@ -808,6 +845,7 @@ begin
   // Rewrite the box with size field 1 and the real size (8 bytes larger, for the longer header) as 64 bits.
   var iLarge: UInt64 := iSize + 8;
   var naLarge: TBytes;
+
   SetLength( naLarge, Length( naData ) + 8 );
   Move( naData[ 0 ], naLarge[ 0 ], iOffset );
   naLarge[ iOffset ]     := 0;
@@ -821,12 +859,14 @@ begin
   Move( naData[ iOffset + 8 ], naLarge[ iOffset + 16 ], Length( naData ) - iOffset - 8 );
 
   var rInfo := ValidateOk( naLarge, 'the container with a large-size box' );
+
   Assert.IsTrue( rInfo.HasJpegReconstruction, 'the rewritten file reads whole' );
   Assert.AreEqual( 1, rInfo.DecodedFrameCount, 'the rewritten file validates' );
 
   // Cut inside the rewritten box itself: past its 16-byte header, half-way through its payload.
   var naCut := Copy( naLarge, 0, iOffset + 16 + ( iSize - 8 ) div 2 );
   var sCut  := Format( 'box %s declares %d bytes, %d available', [ sCodestream, iLarge, Length( naCut ) - iOffset ] );
+
   AssertJxlErrorContains( procedure begin JxlReadInfo( naCut ); end, sCut, 'large-size box cut short' );
 
 end;
@@ -862,6 +902,7 @@ procedure TTestJxlInfo.Test_ReadInfo_Bike_SrgbPrimariesWithBt709TransferIsNotSrg
 begin
 
   var rInfo := ReadInfoOk( ConformanceInput( 'bike' ), 'bike' );
+
   Assert.IsFalse( rInfo.HasIccProfile, 'HasIccProfile' );
   Assert.AreEqual( UInt64( 0 ), rInfo.IccProfileSize, 'IccProfileSize' );
   Assert.AreEqual( Ord( jcsRgb ), Ord( rInfo.ColourSpace ), 'ColourSpace' );
@@ -905,21 +946,35 @@ procedure TTestJxlInfo.Test_ReadInfo_EncodedProfiles_IsSrgbOnlyForSrgb;
 begin
 
   var rSrgb := Default( JxlColorEncoding );
+
   JxlColorEncodingSetToSRGB( @rSrgb, JXL_FALSE );
+
   var rGrey := Default( JxlColorEncoding );
+
   JxlColorEncodingSetToSRGB( @rGrey, JXL_TRUE );
+
   var rLinear := Default( JxlColorEncoding );
+
   JxlColorEncodingSetToLinearSRGB( @rLinear, JXL_FALSE );
+
   var rLinearGrey := Default( JxlColorEncoding );
+
   JxlColorEncodingSetToLinearSRGB( @rLinearGrey, JXL_TRUE );
 
   var rAbsolute := rSrgb;
+
   rAbsolute.rendering_intent := JXL_RENDERING_INTENT_ABSOLUTE;
+
   var rP3 := rSrgb;
+
   rP3.primaries := JXL_PRIMARIES_P3;
+
   var rWhiteE := rSrgb;
+
   rWhiteE.white_point := JXL_WHITE_POINT_E;
+
   var rBt709 := rSrgb;
+
   rBt709.transfer_function := JXL_TRANSFER_FUNCTION_709;
 
   var arCases: TArray<TColourCase> := [ ColourCase( 'sRGB', rSrgb, jcsRgb, True ),
@@ -931,6 +986,7 @@ begin
   for var rEach in arCases do
   begin
     var rInfo := ReadInfoOk( EncodeWithColourEncoding( rEach.Encoding ), rEach.Name );
+
     Assert.AreEqual( rEach.Srgb, rInfo.IsSrgb, rEach.Name + ': IsSrgb' );
     Assert.AreEqual( Ord( rEach.Space ), Ord( rInfo.ColourSpace ), rEach.Name + ': ColourSpace' );
     Assert.IsFalse( rInfo.HasIccProfile, rEach.Name + ': HasIccProfile' );
@@ -943,7 +999,6 @@ begin
 
     if ( rEach.Space = jcsRgb ) then
       Assert.AreEqual( Ord( rEach.Encoding.primaries ), Ord( rInfo.ColourEncoding.primaries ), rEach.Name + ': primaries' );
-
   end;
 
 end;
@@ -952,6 +1007,7 @@ procedure TTestJxlInfo.Test_ReadInfo_BindingOutput_IsSrgb;
 begin
 
   var rLossy := TJxlEncodeOptions.Default;
+
   rLossy.Effort := 3;
 
   var naRgb      := JxlEncodePixels( GradientPixels( 3 ), LosslessFast );
@@ -971,6 +1027,7 @@ begin
   Assert.AreEqual( Ord( jcsGrey ), Ord( rGrey.ColourSpace ), 'lossless grey: ColourSpace' );
 
   var rValidated := ValidateOk( naRgb, 'lossless RGB' );
+
   Assert.IsTrue( rValidated.IsSrgb, 'JxlValidate: IsSrgb' );
   Assert.AreEqual( Ord( jcsRgb ), Ord( rValidated.ColourSpace ), 'JxlValidate: ColourSpace' );
 
@@ -984,9 +1041,11 @@ begin
     var naProfile := CompactIccProfile( sName );
     var bGrey     := ( sName = 'sGrey-v4.icc' );
     var rPixels   := GradientPixels( if bGrey then 1 else 3 );
+
     rPixels.IccProfile := naProfile;
 
     var naJxl := JxlEncodePixels( rPixels, LosslessFast );
+
     AssertIccColour( ReadInfoOk( naJxl, sName ), if bGrey then jcsGrey else jcsRgb, Length( naProfile ), sName );
     AssertIccColour( ValidateOk( naJxl, sName ), if bGrey then jcsGrey else jcsRgb, Length( naProfile ), sName + ' validated' );
   end;
@@ -997,6 +1056,7 @@ procedure TTestJxlInfo.Test_ReadInfo_ConformanceColour_GreySpotAndCmyk;
 begin
 
   var rGrey := ReadInfoOk( ConformanceInput( 'grayscale' ), 'grayscale' );
+
   Assert.AreEqual( Cardinal( 1 ), rGrey.ColourChannels, 'grayscale: ColourChannels' );
   Assert.IsTrue( rGrey.IccProfileSize > 128, 'grayscale: a whole ICC profile' );
   AssertIccColour( rGrey, jcsGrey, rGrey.IccProfileSize, 'grayscale' );
@@ -1004,6 +1064,7 @@ begin
   AssertIccColour( ReadInfoOk( ConformanceInput( 'spot' ), 'spot' ), jcsRgb, 940, 'spot' );
 
   var rCmyk := ReadInfoOk( ConformanceInput( 'cmyk_layers' ), 'cmyk_layers' );
+
   Assert.IsTrue( rCmyk.HasIccProfile, 'cmyk_layers: HasIccProfile' );
   Assert.IsTrue( rCmyk.IccProfileSize > 128, 'cmyk_layers: a whole ICC profile' );
   Assert.AreEqual( Ord( jcsUnknown ), Ord( rCmyk.ColourSpace ), 'cmyk_layers: a CMYK profile''s colour space is unknown' );

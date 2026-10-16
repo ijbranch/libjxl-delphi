@@ -110,6 +110,7 @@ begin
 
     try
       var iOffset: Cardinal := 0;
+
       oStream.Position := $3C;
       oStream.ReadBuffer( iOffset, SizeOf( iOffset ) );
       oStream.Position := Int64( iOffset ) + 4;
@@ -187,6 +188,7 @@ begin
     end;
 
     AFiles := TDirectory.GetFiles( sFolder, '*.dll' );
+
     var sBrotli := TPath.Combine( ExtractFileDir( ExtractFileDir( sFolder ) ), 'third_party\brotli\Release' );
 
     if SameText( ExtractFileName( sFolder ), 'Release' ) and TDirectory.Exists( sBrotli ) then
@@ -332,6 +334,7 @@ begin
   end;
 
   var procEmptyName: TProc := procedure begin JxlCheckLibraryFolder( '' ); end;
+
   Assert.WillRaise( procEmptyName, EArgumentException, 'empty folder name' );
 
 end;

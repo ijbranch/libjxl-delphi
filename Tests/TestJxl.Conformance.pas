@@ -143,15 +143,18 @@ begin
   var sFolder   := CaseFolder( ACaseName );
   var rDecoded  := JxlDecodePixels( TFile.ReadAllBytes( TPath.Combine( sFolder, 'input.jxl' ) ), AColourOutput );
   var rExpected := LoadPngPixels( TPath.Combine( sFolder, 'ref.png' ) );
+
   oJson := LoadTestJson( sFolder );
 
   try
     var fPeak := ( oJson.GetValue( 'frames' ) as TJSONArray ).Items[ 0 ].GetValue<Double>( 'peak_error' );
     var iTolerance := Ceil( fPeak * 255 ) + 1;
+
     Assert.AreEqual( Integer( rExpected.Width ), Integer( rDecoded.Width ), 'Width' );
     Assert.AreEqual( Integer( rExpected.Height ), Integer( rDecoded.Height ), 'Height' );
     Assert.AreEqual( Integer( AExpectedChannels ), Integer( rDecoded.NumChannels ), 'NumChannels' );
     Assert.AreEqual( Integer( AExpectedChannels ), Integer( rExpected.NumChannels ), 'reference NumChannels' );
+
     // A grey image expanded to sRGB RGB carries no profile (libjxl's would be grey); every other case carries one.
     if ( ACaseName = 'grayscale' ) and ( AColourOutput = jcoSrgb ) then
       Assert.AreEqual( 0, Length( rDecoded.IccProfile ), 'a grey image expanded to RGB carries no grey profile' )
@@ -159,6 +162,7 @@ begin
       Assert.IsTrue( Length( rDecoded.IccProfile ) > 0, 'the decoded pixels come with their ICC profile' );
 
     var iDifference := MaxSampleDifference( rExpected.Data, rDecoded.Data );
+
     Assert.IsTrue( iDifference <= iTolerance, Format( 'largest sample difference %d exceeds %d', [ iDifference, iTolerance ] ) );
   finally
     oJson.Free;
@@ -172,6 +176,7 @@ var
 begin
 
   var sFolder := CaseFolder( ACaseName );
+
   oJson := LoadTestJson( sFolder );
 
   try
@@ -179,6 +184,7 @@ begin
     var sExpected := ( ( oJson.GetValue( 'sha256sums' ) as TJSONObject ).Get( sJpegName ).JsonValue as TJSONString ).Value;
     var naJpeg    := JxlReconstructJpeg( TFile.ReadAllBytes( TPath.Combine( sFolder, 'input.jxl' ) ) );
     var oHash := THashSHA2.Create( SHA256 );
+
     oHash.Update( naJpeg );
     Assert.AreEqual( sExpected.ToLower, oHash.HashAsString.ToLower, False, 'SHA-256' );
   finally
@@ -201,6 +207,7 @@ begin
 
   var sFolder := CaseFolder( 'progressive' );
   var naData  := TFile.ReadAllBytes( TPath.Combine( sFolder, 'input.jxl' ) );
+
   JxlCheckLibrary;
   pDecoder := JxlDecoderCreate( nil );
 
@@ -212,6 +219,7 @@ begin
     JxlDecoderCloseInput( pDecoder );
 
     var rFormat := Default( JxlPixelFormat );
+
     rFormat.num_channels := 3;
     rFormat.data_type    := JXL_TYPE_UINT8;
 
@@ -246,12 +254,14 @@ begin
     Assert.IsTrue( iProgression >= 1, 'no JXL_DEC_FRAME_PROGRESSION event fired' );
 
     var rPlain := JxlDecodePixels( naData, jcoImageProfile );
+
     Assert.AreEqual( -1, FirstDifference( rPlain.Data, naPixels ), 'the final progressive image equals a plain decode' );
 
     // ref.png is offset from libjxl's output (measured: at most 62 steps, 34.06 on average); a wrong or partial image
     // would be far further off.
     var rReference := LoadPngPixels( TPath.Combine( sFolder, 'ref.png' ) );
     var fMean      := MeanSampleDifference( rReference.Data, naPixels );
+
     Assert.IsTrue( fMean < 36.0, Format( 'mean difference from ref.png is %.3f', [ fMean ] ) );
     Assert.IsTrue( MaxSampleDifference( rReference.Data, naPixels ) <= 64, 'largest difference from ref.png' );
   finally
@@ -302,6 +312,7 @@ begin
 
   var sFolder := CaseFolder( 'animation_newtons_cradle' );
   var naData  := TFile.ReadAllBytes( TPath.Combine( sFolder, 'input.jxl' ) );
+
   JxlCheckLibrary;
   pDecoder := JxlDecoderCreate( nil );
 
@@ -324,6 +335,7 @@ begin
       else if ( eStatus = JXL_DEC_FRAME ) then
       begin
         var rHeader := Default( JxlFrameHeader );
+
         Assert.AreEqual( Ord( JXL_DEC_SUCCESS ), Ord( JxlDecoderGetFrameHeader( pDecoder, @rHeader ) ), 'GetFrameHeader' );
 
         if ( iFrames = 0 ) then
@@ -371,6 +383,7 @@ begin
   var sFolder := CaseFolder( 'lossless_pfm' );
   var naData  := TFile.ReadAllBytes( TPath.Combine( sFolder, 'input.jxl' ) );
   var naPfm   := TFile.ReadAllBytes( TPath.Combine( sFolder, 'ref.pfm' ) );
+
   JxlCheckLibrary;
   pDecoder := JxlDecoderCreate( nil );
 
@@ -381,6 +394,7 @@ begin
     JxlDecoderCloseInput( pDecoder );
 
     var rFormat := Default( JxlPixelFormat );
+
     rFormat.num_channels := 3;
     rFormat.data_type    := JXL_TYPE_FLOAT;
     rFormat.endianness   := JXL_LITTLE_ENDIAN;
@@ -420,6 +434,7 @@ begin
 
     var iWidth  := Integer( rInfo.xsize );
     var iHeight := Integer( rInfo.ysize );
+
     Assert.AreEqual( iOffset + iWidth * iHeight * 3 * SizeOf( Single ), Length( naPfm ), 'ref.pfm size' );
 
     var fWorst := 0.0;

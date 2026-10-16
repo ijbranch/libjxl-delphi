@@ -208,6 +208,7 @@ begin
   var sJxlIn  := TPath.Combine( sFolder, 'in.jxl' );
   var sOut    := TPath.Combine( sFolder, 'out.bin' );
   var rLimits := JxlGetDefaultLimits;
+
   TDirectory.CreateDirectory( sFolder );
   TFile.WriteAllBytes( sJxlIn, naJbrd );
   oToken  := TJxlCancellation.Create;
@@ -257,6 +258,7 @@ begin
     // At once means before libjxl is given anything: encoding 16 megapixels would first copy and convert 48 MB of samples.
     var rLarge := NoisePixels( 4096 );
     var rTimer := TStopwatch.StartNew;
+
     AssertCancelled( procedure begin JxlEncodePixels( rLarge, Lossless( 1 ), rLimits, oToken ); end, 'JxlEncodePixels',
       'encode 16 megapixels' );
     Assert.IsTrue( rTimer.ElapsedMilliseconds < 20, Format( 'a cancelled encode of 16 megapixels took %d ms to raise',
@@ -286,19 +288,23 @@ begin
   var rLossy  := TJxlEncodeOptions.Default;
   var naJpeg  := TFile.ReadAllBytes( TestDataFile( 'flower\flower.png.im_q85_420.jpg' ) );
   var rLimits := JxlGetDefaultLimits;
+
   oToken := TJxlCancellation.Create;
 
   try
     var naLossless := JxlEncodePixels( rPixels, Lossless( 7 ), rLimits, oToken );
+
     Assert.AreEqual( -1, FirstDifference( JxlEncodePixels( rPixels, Lossless( 7 ) ), naLossless ), 'lossless encode' );
 
     var naLossy := JxlEncodePixels( rPixels, rLossy, rLimits, oToken );
+
     Assert.AreEqual( -1, FirstDifference( JxlEncodePixels( rPixels, rLossy ), naLossy ), 'lossy encode' );
 
     Assert.AreEqual( -1, FirstDifference( JxlDecodePixels( naLossy ).Data, JxlDecodePixels( naLossy, jcoSrgb, rLimits, oToken ).Data ),
       'decode' );
 
     var naJbrd := JxlTranscodeJpegToJxl( naJpeg, 7, rLimits, oToken );
+
     Assert.AreEqual( -1, FirstDifference( JxlTranscodeJpegToJxl( naJpeg, 7 ), naJbrd ), 'JPEG recompression' );
     Assert.AreEqual( -1, FirstDifference( naJpeg, JxlReconstructJpeg( naJbrd, rLimits, oToken ) ), 'JPEG reconstruction' );
     Assert.AreEqual( 1, JxlValidate( naLossless, rLimits, oToken ).DecodedFrameCount, 'validation' );
@@ -316,13 +322,18 @@ begin
 
   var rPixels  := NoisePixels( 1024 );
   var rOptions := TJxlEncodeOptions.Default;
+
   rOptions.Effort := 9;
-  var rLimits  := JxlGetDefaultLimits;
+
+  var rLimits := JxlGetDefaultLimits;
+
   oToken := TJxlCancellation.Create;
 
   try
     var rTimer := TStopwatch.StartNew;
+
     Assert.IsTrue( Length( JxlEncodePixels( rPixels, rOptions, rLimits, oToken ) ) > 0, 'the uncancelled encode completes' );
+
     var iWhole := rTimer.ElapsedMilliseconds;
 
     var iDelay := Integer( iWhole div 10 );
@@ -350,11 +361,14 @@ begin
 
   var naJxl   := JxlEncodePixels( NoisePixels( 4096 ), Lossless( 1 ) );
   var rLimits := JxlGetDefaultLimits;
+
   oToken := TJxlCancellation.Create;
 
   try
     var rTimer := TStopwatch.StartNew;
+
     Assert.AreEqual( Cardinal( 4096 ), JxlDecodePixels( naJxl, jcoSrgb, rLimits, oToken ).Width, 'the uncancelled decode completes' );
+
     var iWhole := rTimer.ElapsedMilliseconds;
 
     var iDelay := Integer( iWhole div 10 );
@@ -403,6 +417,7 @@ begin
 
   var rManager := ABudget.Manager;
   var pEncoder := JxlEncoderCreate( @rManager );
+
   Assert.IsTrue( Assigned( pEncoder ), 'JxlEncoderCreate' );
   rRunner.Runner       := JxlResizableParallelRunnerCreate( nil );
   rRunner.Cancellation := AToken;
@@ -413,6 +428,7 @@ begin
       'SetParallelRunner' );
 
     var rInfo := Default( JxlBasicInfo );
+
     JxlEncoderInitBasicInfo( @rInfo );
     rInfo.xsize                 := APixels.Width;
     rInfo.ysize                 := APixels.Height;
@@ -422,15 +438,18 @@ begin
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderSetBasicInfo( pEncoder, @rInfo ) ), 'SetBasicInfo' );
 
     var rColour := Default( JxlColorEncoding );
+
     JxlColorEncodingSetToSRGB( @rColour, JXL_FALSE );
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderSetColorEncoding( pEncoder, @rColour ) ), 'SetColorEncoding' );
 
     var pSettings := JxlEncoderFrameSettingsCreate( pEncoder, nil );
+
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderSetFrameDistance( pSettings, 1.0 ) ), 'SetFrameDistance' );
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderFrameSettingsSetOption( pSettings, JXL_ENC_FRAME_SETTING_EFFORT,
       AEffort ) ), 'effort' );
 
     var rFormat := Default( JxlPixelFormat );
+
     rFormat.num_channels := 3;
     rFormat.data_type    := JXL_TYPE_UINT8;
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderAddImageFrame( pSettings, @rFormat, PByte( APixels.Data ),
@@ -438,10 +457,12 @@ begin
     JxlEncoderCloseInput( pEncoder );
 
     var naOut: TBytes;
+
     SetLength( naOut, Length( APixels.Data ) * 2 );
 
     var pNext: PByte           := PByte( naOut );
     var iAvailable: NativeUInt := Length( naOut );
+
     Result := JxlEncoderProcessOutput( pEncoder, @pNext, @iAvailable );
   finally
     JxlEncoderDestroy( pEncoder );
@@ -457,13 +478,18 @@ var
 begin
 
   var rPixels := NoisePixels( 1024 );
+
   oToken := TJxlCancellation.Create;
 
   try
     rBudget.Init( Int64( 1 ) shl 30 );
+
     var rTimer := TStopwatch.StartNew;
+
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( EncodeThroughRunner( rPixels, 9, oToken, rBudget ) ), 'uncancelled, it encodes' );
+
     var iWhole := rTimer.ElapsedMilliseconds;
+
     Assert.AreEqual( Int64( 0 ), rBudget.Used, 'the uncancelled encoder released everything' );
 
     rBudget.Init( Int64( 1 ) shl 30 );
@@ -535,6 +561,7 @@ procedure ContractRun( jpegxl_opaque: Pointer; value: UInt32; thread_id: NativeU
 begin
 
   var pProbe := PContractProbe( jpegxl_opaque );
+
   AtomicIncrement( pProbe.Runs );
 
   if ( AtomicExchange( pProbe.Done[ value ], 1 ) <> 0 ) then AtomicIncrement( pProbe.Repeats );
@@ -578,6 +605,7 @@ var
 begin
 
   var iResult := RunContract( nil, False, rProbe );
+
   Assert.AreEqual( JXL_PARALLEL_RET_SUCCESS, iResult, 'no token: result' );
   Assert.AreEqual( 1, rProbe.InitCalls, 'no token: init calls' );
   Assert.AreEqual( CONTRACT_TASKS, rProbe.Runs, 'no token: every task runs' );

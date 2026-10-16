@@ -973,6 +973,7 @@ begin
   if ( AStatus <> JXL_ENC_SUCCESS ) then
   begin
     var eError := JxlEncoderGetError( AEncoder );
+
     raise EJxlError.CreateStatus( AApiName, Ord( eError ), EncoderErrorText( eError ) );
   end;
 
@@ -1064,6 +1065,7 @@ function CancellableInit( jpegxl_opaque: Pointer; num_threads: NativeUInt ): Jxl
 begin
 
   var pCall := PCancellableCall( jpegxl_opaque );
+
   Result := pCall.Init( pCall.Opaque, num_threads );
 
 end;
@@ -1096,6 +1098,7 @@ begin
   if pRunner.Cancellation.IsCancelled then Exit( JXL_PARALLEL_RET_RUNNER_ERROR );
 
   var rCall: TCancellableCall;
+
   rCall.Opaque       := jpegxl_opaque;
   rCall.Init         := init;
   rCall.Func         := func;
@@ -1290,6 +1293,7 @@ begin
     raise EJxlError.CreateCheck( ARoutine, Format( 'the output would exceed %d bytes (TJxlLimits.MaxOutputBytes)', [ iCap ] ) );
 
   var iNew := if ( iCurrent > iCap div 2 ) then iCap else iCurrent * 2;
+
   SetLength( ABuffer, NativeInt( iNew ) );
 
 end;
@@ -1333,7 +1337,9 @@ begin
   while ( eStatus = JXL_ENC_NEED_MORE_OUTPUT ) do
   begin
     CheckCancellation( ACancellation, ARoutine );
+
     var iUsed := pNext - PByte( Result );
+
     GrowOutput( Result, ALimits, ARoutine );
     pNext      := PByte( Result ) + iUsed;
     iAvailable := NativeUInt( Length( Result ) - iUsed );
@@ -1428,6 +1434,7 @@ begin
   rBudget.Init( ALimits.MaxMemoryBytes );
 
   var rManager := rBudget.Manager;
+
   pDecoder := JxlDecoderCreate( @rManager );
 
   if ( not Assigned( pDecoder ) ) then
@@ -1439,6 +1446,7 @@ begin
     try
       try
         var bToBitmap := Assigned( ABitmap );
+
         rRunner.Runner       := pRunner;
         rRunner.Cancellation := ACancellation;
         CheckDecoder( JxlDecoderSetParallelRunner( pDecoder, JxlCancellableParallelRunner, @rRunner ), 'JxlDecoderSetParallelRunner' );
@@ -1450,6 +1458,7 @@ begin
         JxlDecoderCloseInput( pDecoder );
 
         var rFormat := Default( JxlPixelFormat );
+
         rFormat.data_type  := JXL_TYPE_UINT8;
         rFormat.endianness := JXL_NATIVE_ENDIAN;
 
@@ -1461,17 +1470,20 @@ begin
         while ( not bDone ) do
         begin
           CheckCancellation( ACancellation, ARoutine );
+
           var eStatus := JxlDecoderProcessInput( pDecoder );
 
           case eStatus of
             JXL_DEC_BASIC_INFO:
               begin
                 var rInfo := Default( JxlBasicInfo );
+
                 CheckDecoder( JxlDecoderGetBasicInfo( pDecoder, @rInfo ), 'JxlDecoderGetBasicInfo' );
                 CheckBasicInfo( rInfo, ALimits, ARoutine );
 
                 // Only the image's own profile keeps a grey image grey: sRGB output, and a bitmap, are RGB.
                 var bGreyOut := ( rInfo.num_color_channels = 1 ) and ( AColourOutput = jcoImageProfile ) and ( not bToBitmap );
+
                 bGreyToColour        := ( rInfo.num_color_channels = 1 ) and ( not bGreyOut );
                 bAlpha               := ( rInfo.alpha_bits > 0 );
                 Result.Width         := rInfo.xsize;
@@ -1489,6 +1501,7 @@ begin
                 if ( AColourOutput = jcoSrgb ) or bToBitmap then
                 begin
                   var rSrgb := Default( JxlColorEncoding );
+
                   JxlColorEncodingSetToSRGB( @rSrgb, JXL_FALSE );
                   CheckDecoder( JxlDecoderSetOutputColorProfile( pDecoder, @rSrgb, nil, 0 ), 'JxlDecoderSetOutputColorProfile' );
                 end;
@@ -1516,6 +1529,7 @@ begin
                 else
                 begin
                   var iSize: NativeUInt := 0;
+
                   CheckDecoder( JxlDecoderImageOutBufferSize( pDecoder, @rFormat, @iSize ), 'JxlDecoderImageOutBufferSize' );
 
                   var iExpected := PixelBufferSize( Result.Width, Result.Height, Result.NumChannels, ARoutine );
@@ -1561,6 +1575,7 @@ begin
         on EJxlError do
         begin
           var eReplacement := ReplacementError( rBudget, ACancellation, ARoutine );
+
           if Assigned( eReplacement ) then raise eReplacement else raise;
         end;
       end;
@@ -1596,6 +1611,7 @@ begin
   rBudget.Init( ALimits.MaxMemoryBytes );
 
   var rManager := rBudget.Manager;
+
   pEncoder := JxlEncoderCreate( @rManager );
 
   if ( not Assigned( pEncoder ) ) then
@@ -1617,6 +1633,7 @@ begin
         var bAlpha    := ( APixels.NumChannels = 2 ) or ( APixels.NumChannels = 4 );
         var bGrey     := ( APixels.NumChannels <= 2 );
         var rInfo     := Default( JxlBasicInfo );
+
         JxlEncoderInitBasicInfo( @rInfo );
         rInfo.xsize                    := APixels.Width;
         rInfo.ysize                    := APixels.Height;
@@ -1640,6 +1657,7 @@ begin
         else
         begin
           var rColour := Default( JxlColorEncoding );
+
           JxlColorEncodingSetToSRGB( @rColour, if bGrey then JXL_TRUE else JXL_FALSE );
           CheckEncoder( JxlEncoderSetColorEncoding( pEncoder, @rColour ), 'JxlEncoderSetColorEncoding', pEncoder );
         end;
@@ -1658,6 +1676,7 @@ begin
           CheckEncoder( JxlEncoderSetFrameDistance( pSettings, AOptions.Distance ), 'JxlEncoderSetFrameDistance', pEncoder );
 
         var rFormat := Default( JxlPixelFormat );
+
         rFormat.num_channels := APixels.NumChannels;
         rFormat.data_type    := JXL_TYPE_UINT8;
         rFormat.endianness   := JXL_NATIVE_ENDIAN;
@@ -1669,6 +1688,7 @@ begin
         on EJxlError do
         begin
           var eReplacement := ReplacementError( rBudget, ACancellation, ARoutine );
+
           if Assigned( eReplacement ) then raise eReplacement else raise;
         end;
       end;
@@ -1762,6 +1782,7 @@ var
     for var iI := 0 to iComponents - 1 do
     begin
       var iSampling := AData[ AOffset + 7 + 3 * iI ];
+
       iBytes := iBytes + iMcuColumns * ( iSampling shr 4 ) * iMcuRows * ( iSampling and $0F ) * 64 * SizeOf( SmallInt );
     end;
 
@@ -1811,6 +1832,7 @@ begin
     if ( iPos >= iLength ) then Fail( 'is truncated inside a marker' );
 
     var iMarker := AData[ iPos ];
+
     Inc( iPos );
 
     if ( iMarker = $D9 ) then Break;
@@ -1845,7 +1867,6 @@ begin
 
       if ( iScans > ALimits.MaxJpegScans ) then
         Fail( Format( 'has more than %d scans (TJxlLimits.MaxJpegScans)', [ ALimits.MaxJpegScans ] ) );
-
     end;
 
     Inc( iPos, iSegment );
@@ -1876,6 +1897,7 @@ begin
   rBudget.Init( ALimits.MaxMemoryBytes );
 
   var rManager := rBudget.Manager;
+
   pEncoder := JxlEncoderCreate( @rManager );
 
   if ( not Assigned( pEncoder ) ) then
@@ -1909,6 +1931,7 @@ begin
         on EJxlError do
         begin
           var eReplacement := ReplacementError( rBudget, ACancellation, ARoutine );
+
           if Assigned( eReplacement ) then raise eReplacement else raise;
         end;
       end;
@@ -1961,6 +1984,7 @@ begin
   rBudget.Init( ALimits.MaxMemoryBytes );
 
   var rManager := rBudget.Manager;
+
   pDecoder := JxlDecoderCreate( @rManager );
 
   if ( not Assigned( pDecoder ) ) then
@@ -1987,12 +2011,14 @@ begin
         while ( not bDone ) do
         begin
           CheckCancellation( ACancellation, ARoutine );
+
           var eStatus := JxlDecoderProcessInput( pDecoder );
 
           case eStatus of
             JXL_DEC_BASIC_INFO:
               begin
                 var rInfo := Default( JxlBasicInfo );
+
                 CheckDecoder( JxlDecoderGetBasicInfo( pDecoder, @rInfo ), 'JxlDecoderGetBasicInfo' );
                 CheckBasicInfo( rInfo, ALimits, ARoutine );
                 CheckReconstructionMemory( rInfo, ALimits, ARoutine );
@@ -2005,6 +2031,7 @@ begin
             JXL_DEC_JPEG_NEED_MORE_OUTPUT:
               begin
                 var iUsed := NativeInt( NativeUInt( Length( Result ) ) - JxlDecoderReleaseJPEGBuffer( pDecoder ) );
+
                 GrowOutput( Result, ALimits, ARoutine );
                 CheckDecoder( JxlDecoderSetJPEGBuffer( pDecoder, PByte( Result ) + iUsed, NativeUInt( Length( Result ) - iUsed ) ),
                   'JxlDecoderSetJPEGBuffer' );
@@ -2030,6 +2057,7 @@ begin
         on EJxlError do
         begin
           var eReplacement := ReplacementError( rBudget, ACancellation, ARoutine );
+
           if Assigned( eReplacement ) then raise eReplacement else raise;
         end;
       end;
@@ -2162,6 +2190,7 @@ begin
   end;
 
   var iSize: NativeUInt := 0;
+
   CheckDecoder( JxlDecoderGetICCProfileSize( ADecoder, JXL_COLOR_PROFILE_TARGET_ORIGINAL, @iSize ), 'JxlDecoderGetICCProfileSize' );
   AInfo.HasIccProfile  := True;
   AInfo.IccProfileSize := iSize;
@@ -2169,6 +2198,7 @@ begin
   if ( iSize < ICC_COLOUR_SPACE_OFFSET + 4 ) then Exit;
 
   var naProfile: TBytes;
+
   SetLength( naProfile, iSize );
   CheckDecoder( JxlDecoderGetColorAsICCProfile( ADecoder, JXL_COLOR_PROFILE_TARGET_ORIGINAL, PByte( naProfile ), iSize ),
     'JxlDecoderGetColorAsICCProfile' );
@@ -2206,6 +2236,7 @@ begin
   rBudget.Init( ALimits.MaxMemoryBytes );
 
   var rManager := rBudget.Manager;
+
   pDecoder := JxlDecoderCreate( @rManager );
 
   if ( not Assigned( pDecoder ) ) then
@@ -2234,6 +2265,7 @@ begin
       JxlDecoderCloseInput( pDecoder );
 
       var rFormat := Default( JxlPixelFormat );
+
       rFormat.num_channels := 4;
       rFormat.data_type    := JXL_TYPE_UINT8;
       rFormat.endianness   := JXL_NATIVE_ENDIAN;
@@ -2247,6 +2279,7 @@ begin
           JXL_DEC_BASIC_INFO:
             begin
               var rBasic := Default( JxlBasicInfo );
+
               CheckDecoder( JxlDecoderGetBasicInfo( pDecoder, @rBasic ), 'JxlDecoderGetBasicInfo' );
               CheckBasicInfo( rBasic, ALimits, ARoutine );
               bHaveInfo                    := True;
@@ -2273,7 +2306,6 @@ begin
 
               if Assigned( pRunner ) then
                 JxlResizableParallelRunnerSetThreads( pRunner, JxlResizableParallelRunnerSuggestThreads( rBasic.xsize, rBasic.ysize ) );
-
             end;
           JXL_DEC_COLOR_ENCODING:
             ReadColourEncoding( pDecoder, Result );
@@ -2284,6 +2316,7 @@ begin
           JXL_DEC_FRAME:
             begin
               var rHeader := Default( JxlFrameHeader );
+
               CheckDecoder( JxlDecoderGetFrameHeader( pDecoder, @rHeader ), 'JxlDecoderGetFrameHeader' );
               Inc( Result.FrameCount );
               Inc( Result.DurationTicks, rHeader.duration );
@@ -2291,6 +2324,7 @@ begin
           JXL_DEC_BOX:
             begin
               var cBoxType: JxlBoxType;
+
               CheckDecoder( JxlDecoderGetBoxType( pDecoder, cBoxType, JXL_TRUE ), 'JxlDecoderGetBoxType' );
 
               if CompareMem( @cBoxType, @JPEG_RECONSTRUCTION_BOX, SizeOf( JxlBoxType ) ) then
@@ -2316,6 +2350,7 @@ begin
       on EJxlError do
       begin
         var eReplacement := ReplacementError( rBudget, ACancellation, ARoutine );
+
         if Assigned( eReplacement ) then raise eReplacement else raise;
       end;
     end;
@@ -2457,6 +2492,7 @@ begin
   var sRoutine := NameOf( JxlDecodePixels );
   var rLimits  := ALimits;
   var naData   := AData;
+
   CheckLimits( rLimits, sRoutine );
   CheckInputBytes( naData, rLimits, sRoutine );
   CheckCancellation( ACancellation, sRoutine );
@@ -2486,6 +2522,7 @@ begin
   var rPixels  := APixels;
   var rOptions := AOptions;
   var rLimits  := ALimits;
+
   ValidatePixels( rPixels );
   CheckEncodeOptions( rOptions, sRoutine );
   CheckLimits( rLimits, sRoutine );
@@ -2562,7 +2599,6 @@ begin
   oConverted := nil;
 
   try
-
     if ( ABitmap.PixelFormat <> pf32bit ) then
     begin
       oConverted := TBitmap.Create;
@@ -2573,6 +2609,7 @@ begin
     end;
 
     var bAlpha := ( oSource.AlphaFormat <> afIgnored );
+
     Result.Width              := oSource.Width;
     Result.Height             := oSource.Height;
     Result.NumChannels        := if bAlpha then 4 else 3;
@@ -2624,6 +2661,7 @@ begin
   var sRoutine := NameOf( JxlDecodeToBitmap );
   var rLimits  := ALimits;
   var naData   := AData;
+
   CheckLimits( rLimits, sRoutine );
   CheckInputBytes( naData, rLimits, sRoutine );
   CheckCancellation( ACancellation, sRoutine );
@@ -2648,6 +2686,7 @@ begin
   if ( not Assigned( ABitmap ) ) then raise EArgumentException.Create( 'JxlDecodeFileToBitmap needs a bitmap.' );
 
   var rLimits := JxlGetDefaultLimits;
+
   JxlDecodeToBitmap( ReadFileBytes( AFileName, rLimits, NameOf( JxlDecodeFileToBitmap ) ), ABitmap, rLimits, ACancellation );
 
 end;
@@ -2676,6 +2715,7 @@ begin
   var sRoutine := NameOf( JxlTranscodeJpegToJxl );
   var rLimits  := ALimits;
   var naJpeg   := AJpegData;
+
   CheckEffort( AEffort, sRoutine );
   CheckLimits( rLimits, sRoutine );
   CheckInputBytes( naJpeg, rLimits, sRoutine );
@@ -2705,6 +2745,7 @@ begin
   var sRoutine := NameOf( JxlReconstructJpeg );
   var rLimits  := ALimits;
   var naJxl    := AJxlData;
+
   CheckLimits( rLimits, sRoutine );
   CheckInputBytes( naJxl, rLimits, sRoutine );
   CheckCancellation( ACancellation, sRoutine );
@@ -2723,6 +2764,7 @@ begin
 
   var rLimits := JxlGetDefaultLimits;
   var naJpeg  := ReadFileBytes( AJpegFileName, rLimits, NameOf( JxlTranscodeJpegFileToJxl ) );
+
   TFile.WriteAllBytes( AJxlFileName, JxlTranscodeJpegToJxl( naJpeg, AEffort, rLimits, ACancellation ) );
 
 end;
@@ -2732,6 +2774,7 @@ begin
 
   var rLimits := JxlGetDefaultLimits;
   var naJxl   := ReadFileBytes( AJxlFileName, rLimits, NameOf( JxlReconstructJpegFile ) );
+
   TFile.WriteAllBytes( AJpegFileName, JxlReconstructJpeg( naJxl, rLimits, ACancellation ) );
 
 end;
@@ -2751,6 +2794,7 @@ begin
 
   var rLimits := ALimits;
   var naData  := AData;
+
   CheckLimits( rLimits, ARoutine );
   CheckInputBytes( naData, rLimits, ARoutine );
   CheckCancellation( ACancellation, ARoutine );
@@ -2781,6 +2825,7 @@ function JxlReadInfo( AStream: TStream ): TJxlInfo;
 begin
 
   var rLimits := JxlGetDefaultLimits;
+
   Result := ReadInfoChecked( ReadStreamBytes( AStream, rLimits, NameOf( JxlReadInfo ) ), False, rLimits, nil, NameOf( JxlReadInfo ) );
 
 end;
@@ -2789,6 +2834,7 @@ function JxlReadInfo( const AFileName: string ): TJxlInfo;
 begin
 
   var rLimits := JxlGetDefaultLimits;
+
   Result := ReadInfoChecked( ReadFileBytes( AFileName, rLimits, NameOf( JxlReadInfo ) ), False, rLimits, nil, NameOf( JxlReadInfo ) );
 
 end;
@@ -2811,6 +2857,7 @@ function JxlValidate( AStream: TStream; ACancellation: TJxlCancellation ): TJxlI
 begin
 
   var rLimits := JxlGetDefaultLimits;
+
   Result := ReadInfoChecked( ReadStreamBytes( AStream, rLimits, NameOf( JxlValidate ) ), True, rLimits, ACancellation,
     NameOf( JxlValidate ) );
 
@@ -2820,6 +2867,7 @@ function JxlValidate( const AFileName: string; ACancellation: TJxlCancellation )
 begin
 
   var rLimits := JxlGetDefaultLimits;
+
   Result := ReadInfoChecked( ReadFileBytes( AFileName, rLimits, NameOf( JxlValidate ) ), True, rLimits, ACancellation,
     NameOf( JxlValidate ) );
 
@@ -2842,6 +2890,7 @@ begin
   var bGrey      := ( iColourType = COLOR_GRAYSCALE ) or ( iColourType = COLOR_GRAYSCALEALPHA );
   var iColours   := if bGrey then 1 else 3;
   var iChannels  := iColours + ( if bAlpha then 1 else 0 );
+
   APixels.Width              := APng.Width;
   APixels.Height             := APng.Height;
   APixels.NumChannels        := iChannels;
@@ -2896,6 +2945,7 @@ begin
   inherited Create;
 
   var rDefault := TJxlEncodeOptions.Default;
+
   FLossless := rDefault.Lossless;
   FDistance := rDefault.Distance;
   FEffort   := rDefault.Effort;
@@ -2929,6 +2979,7 @@ begin
 
   try
     var naHeader: TBytes;
+
     SetLength( naHeader, Length( JXL_CONTAINER_SIGNATURE ) );
     SetLength( naHeader, Stream.Read( naHeader, Length( naHeader ) ) );
     Result := JxlHasSignature( naHeader );
@@ -2946,6 +2997,7 @@ begin
   if ( Source is TJxlImage ) then
   begin
     var oSource := TJxlImage( Source );
+
     FLossless := oSource.FLossless;
     FDistance := oSource.FDistance;
     FEffort   := oSource.FEffort;
@@ -2965,6 +3017,7 @@ procedure TJxlImage.SaveToStream( Stream: TStream );
 begin
 
   var naData := JxlEncodePixels( JxlBitmapToPixels( Self ), EncodeOptions, FLimits, FCancellation );
+
   Stream.WriteBuffer( naData, Length( naData ) );
 
 end;

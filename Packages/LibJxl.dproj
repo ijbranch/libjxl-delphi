@@ -108,8 +108,8 @@
         <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=LibJxl - JPEG XL (libjxl) binding for Delphi;FileVersion=1.0.0.11;InternalName=LibJxl;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=;ProductName=libjxl;ProductVersion=1.0.0.11;Comments=;CFBundleName=</VerInfo_Keys>
-        <VerInfo_Build>11</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=LibJxl - JPEG XL (libjxl) binding for Delphi;FileVersion=1.0.0.12;InternalName=LibJxl;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=;ProductName=libjxl;ProductVersion=1.0.0.12;Comments=;CFBundleName=</VerInfo_Keys>
+        <VerInfo_Build>12</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -117,8 +117,8 @@
         <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=LibJxl - JPEG XL (libjxl) binding for Delphi;FileVersion=1.0.0.16;InternalName=LibJxl;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=;ProductName=libjxl;ProductVersion=1.0.0.16;Comments=;CFBundleName=</VerInfo_Keys>
-        <VerInfo_Build>16</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=LibJxl - JPEG XL (libjxl) binding for Delphi;FileVersion=1.0.0.17;InternalName=LibJxl;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=;ProductName=libjxl;ProductVersion=1.0.0.17;Comments=;CFBundleName=</VerInfo_Keys>
+        <VerInfo_Build>17</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -131,8 +131,8 @@
         <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=LibJxl - JPEG XL (libjxl) binding for Delphi;FileVersion=1.0.0.13;InternalName=LibJxl;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=;ProductName=libjxl;ProductVersion=1.0.0.13;Comments=;CFBundleName=</VerInfo_Keys>
-        <VerInfo_Build>13</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=LibJxl - JPEG XL (libjxl) binding for Delphi;FileVersion=1.0.0.14;InternalName=LibJxl;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=;ProductName=libjxl;ProductVersion=1.0.0.14;Comments=;CFBundleName=</VerInfo_Keys>
+        <VerInfo_Build>14</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -140,8 +140,8 @@
         <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=LibJxl - JPEG XL (libjxl) binding for Delphi;FileVersion=1.0.0.19;InternalName=LibJxl;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=;ProductName=libjxl;ProductVersion=1.0.0.19;Comments=;CFBundleName=</VerInfo_Keys>
-        <VerInfo_Build>19</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=LibJxl - JPEG XL (libjxl) binding for Delphi;FileVersion=1.0.0.20;InternalName=LibJxl;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=;ProductName=libjxl;ProductVersion=1.0.0.20;Comments=;CFBundleName=</VerInfo_Keys>
+        <VerInfo_Build>20</VerInfo_Build>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

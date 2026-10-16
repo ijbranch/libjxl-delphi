@@ -162,6 +162,7 @@ procedure TTestJxlLimits.Test_Default_PerArchitectureValues;
 begin
 
   var rLimits := TJxlLimits.Default;
+
 {$IFDEF CPU64BITS}
   Assert.AreEqual( UInt64( 268435456 ), rLimits.MaxPixels, 'MaxPixels' );
   Assert.AreEqual( Int64( 8589934592 ), rLimits.MaxMemoryBytes, 'MaxMemoryBytes' );
@@ -177,6 +178,7 @@ begin
   Assert.AreEqual( Cardinal( 64 ), rLimits.MaxJpegScans, 'MaxJpegScans' );
 
   var rCurrent := JxlGetDefaultLimits;
+
   Assert.AreEqual( rLimits.MaxPixels, rCurrent.MaxPixels, 'the process default starts as TJxlLimits.Default (MaxPixels)' );
   Assert.AreEqual( rLimits.MaxMemoryBytes, rCurrent.MaxMemoryBytes, 'the process default starts as TJxlLimits.Default (MaxMemoryBytes)' );
 
@@ -209,6 +211,7 @@ begin
   end;
 
   var rZero := Limits;
+
   rZero.MaxPixels := 0;
   Assert.WillRaise( procedure begin JxlReadInfo( naData, rZero ); end, EArgumentException, 'JxlReadInfo' );
   Assert.WillRaise( procedure begin JxlValidate( naData, rZero ); end, EArgumentException, 'JxlValidate' );
@@ -236,9 +239,11 @@ begin
 
   var naData := TFile.ReadAllBytes( TestDataFile( 'splines.jxl' ) );
   var rLimits := Limits;
+
   rLimits.MaxPixels := 2048 * 2048 - 1;
 
   var sText := 'the image is 2048 x 2048 pixels, more than TJxlLimits.MaxPixels (4194303)';
+
   AssertJxlError( procedure begin JxlDecodePixels( naData, jcoSrgb, rLimits ); end, 'JxlDecodePixels', True, sText, 'JxlDecodePixels' );
   AssertJxlError( procedure begin JxlReadInfo( naData, rLimits ); end, 'JxlReadInfo', True, sText, 'JxlReadInfo' );
   AssertJxlError( procedure begin JxlValidate( naData, rLimits ); end, 'JxlValidate', True, sText, 'JxlValidate' );
@@ -268,6 +273,7 @@ begin
   end;
 
   var naJxl := TranscodedFlower( naJpeg );
+
   rLimits.MaxPixels := 2268 * 1512 - 1;
   AssertJxlError( procedure begin JxlReconstructJpeg( naJxl, rLimits ); end, 'JxlReconstructJpeg', True,
     'the image is 2268 x 1512 pixels, more than TJxlLimits.MaxPixels (3429215)', 'JxlReconstructJpeg' );
@@ -295,9 +301,11 @@ begin
 
   var naData := TFile.ReadAllBytes( TPath.Combine( sFolder, 'input.jxl' ) );
   var rInfo  := JxlReadInfo( naData );
+
   Assert.IsTrue( rInfo.ExtraChannels >= 2, Format( 'cmyk_layers has %d extra channels', [ rInfo.ExtraChannels ] ) );
 
   var rLimits := Limits;
+
   rLimits.MaxExtraChannels := rInfo.ExtraChannels - 1;
   AssertJxlError( procedure begin JxlReadInfo( naData, rLimits ); end, 'JxlReadInfo', True,
     Format( 'the image has %d extra channels, more than TJxlLimits.MaxExtraChannels (%d)', [ rInfo.ExtraChannels,
@@ -319,9 +327,11 @@ begin
   var sFileName := TestDataFile( 'splines.jxl' );
   var naData    := TFile.ReadAllBytes( sFileName );
   var rLimits   := Limits;
+
   rLimits.MaxInputBytes := Length( naData ) - 1;
 
   var sText := Format( 'the input is %d bytes, more than TJxlLimits.MaxInputBytes (%d)', [ Length( naData ), Length( naData ) - 1 ] );
+
   AssertJxlError( procedure begin JxlReadInfo( naData, rLimits ); end, 'JxlReadInfo', True, sText, 'bytes overload' );
 
   JxlSetDefaultLimits( rLimits );
@@ -351,14 +361,17 @@ begin
 
   var naData := TFile.ReadAllBytes( TestDataFile( 'splines.jxl' ) );
   var rLimits := Limits;
+
   rLimits.MaxMemoryBytes := 1024 * 1024;
 
   var sText := 'libjxl needed more memory than TJxlLimits.MaxMemoryBytes allows (1048576 bytes; ';
+
   AssertJxlError( procedure begin JxlDecodePixels( naData, jcoSrgb, rLimits ); end, 'JxlDecodePixels', True, sText, 'decode' );
   AssertJxlError( procedure begin JxlValidate( naData, rLimits ); end, 'JxlValidate', True, sText, 'validate' );
 
   var rPixels := LoadPngPixels( TestDataFile( 'flower\flower.png' ) );
   var rOptions := TJxlEncodeOptions.Default;
+
   rOptions.Effort := 3;
   AssertJxlError( procedure begin JxlEncodePixels( rPixels, rOptions, rLimits ); end, 'JxlEncodePixels', True, sText, 'encode' );
 
@@ -368,6 +381,7 @@ begin
   // blocks of 64 two-byte coefficients in 3 components, 20611584 bytes.
   var naJpeg: TBytes;
   var naJxl := TranscodedFlower( naJpeg );
+
   rLimits.MaxMemoryBytes := 20000000;
   AssertJxlError( procedure begin JxlReconstructJpeg( naJxl, rLimits ); end, 'JxlReconstructJpeg', True,
     'the JPEG would need 20611584 bytes of DCT coefficients, more than TJxlLimits.MaxMemoryBytes (20000000)',
@@ -382,15 +396,18 @@ begin
 
   var rPixels  := LoadPngPixels( TestDataFile( 'flower\flower.png' ) );
   var rOptions := TJxlEncodeOptions.Default;
+
   rOptions.Lossless := True;
   rOptions.Effort   := 1;
 
   var rLimits := Limits;
+
   rLimits.MaxOutputBytes := 100000;
   AssertJxlError( procedure begin JxlEncodePixels( rPixels, rOptions, rLimits ); end, 'JxlEncodePixels', True,
     'the output would exceed 100000 bytes (TJxlLimits.MaxOutputBytes)', 'lossless encode over 100000 bytes' );
 
   var naJxl := TranscodedFlower( naJpeg );
+
   rLimits.MaxOutputBytes := Length( naJpeg ) - 1;
   AssertJxlError( procedure begin JxlReconstructJpeg( naJxl, rLimits ); end, 'JxlReconstructJpeg', True,
     Format( 'the output would exceed %d bytes (TJxlLimits.MaxOutputBytes)', [ Length( naJpeg ) - 1 ] ), 'reconstruction one byte over' );
@@ -410,6 +427,7 @@ begin
     'the JPEG is garbled: no marker at offset 2', 'garbage after the start marker' );
 
   var naGood := BuildJpeg( 16, 16, 3, 1 );
+
   AssertJxlError( procedure begin JxlTranscodeJpegToJxl( Copy( naGood, 0, 10 ) ); end, TRANSCODE, True,
     'the JPEG is truncated: a segment at offset 4 declares 17 bytes, 6 remain', 'cut inside the frame header' );
   AssertJxlError( procedure begin JxlTranscodeJpegToJxl( Copy( naGood, 0, Length( naGood ) - 2 ) ); end, TRANSCODE, True,
@@ -423,11 +441,13 @@ begin
 
   // A scan before the frame header: the start marker, then a scan, then the frame.
   var naScanFirst: TBytes := [ $FF, $D8, $FF, $DA, 0, 8, 1, 1, 0, 0, 63, 0, $00 ] + Copy( naGood, 2, Length( naGood ) - 2 );
+
   AssertJxlError( procedure begin JxlTranscodeJpegToJxl( naScanFirst ); end, TRANSCODE, True,
     'the JPEG has a scan before its frame header', 'scan first' );
 
   // Two frame headers.
   var naTwoFrames: TBytes := Copy( naGood, 0, 2 + 2 + 17 ) + Copy( naGood, 2, Length( naGood ) - 2 );
+
   AssertJxlError( procedure begin JxlTranscodeJpegToJxl( naTwoFrames ); end, TRANSCODE, True,
     'the JPEG has more than one frame header', 'two frames' );
 
@@ -444,6 +464,7 @@ begin
     'the JPEG is 65535 x 65535 pixels, more than TJxlLimits.MaxPixels', '65535 x 65535 under the default limits' );
 
   var rLimits := Limits;
+
   rLimits.MaxMemoryBytes := 1024 * 1024;
 
   // 2000 x 2000, three components at 1 x 1: 250 x 250 blocks each, 64 coefficients of 2 bytes: 24000000 bytes.

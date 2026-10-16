@@ -92,8 +92,8 @@
         <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=JPEG XL viewer (libjxl Delphi binding demo);FileVersion=1.0.0.11;InternalName=JxlViewer;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=JxlViewer.exe;ProductName=libjxl;ProductVersion=1.0.0.11;Comments=</VerInfo_Keys>
-        <VerInfo_Build>11</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=JPEG XL viewer (libjxl Delphi binding demo);FileVersion=1.0.0.12;InternalName=JxlViewer;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=JxlViewer.exe;ProductName=libjxl;ProductVersion=1.0.0.12;Comments=</VerInfo_Keys>
+        <VerInfo_Build>12</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -108,8 +108,8 @@
         <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=JPEG XL viewer (libjxl Delphi binding demo);FileVersion=1.0.0.19;InternalName=JxlViewer;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=JxlViewer.exe;ProductName=libjxl;ProductVersion=1.0.0.19;Comments=</VerInfo_Keys>
-        <VerInfo_Build>19</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=JPEG XL viewer (libjxl Delphi binding demo);FileVersion=1.0.0.20;InternalName=JxlViewer;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=JxlViewer.exe;ProductName=libjxl;ProductVersion=1.0.0.20;Comments=</VerInfo_Keys>
+        <VerInfo_Build>20</VerInfo_Build>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

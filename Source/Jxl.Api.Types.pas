@@ -1021,7 +1021,8 @@ const
 function BudgetAlloc( opaque: Pointer; size: NativeUInt ): Pointer; cdecl;
 begin
 
-  Result      := nil;
+  Result := nil;
+
   var pBudget := PJxlMemoryBudget( opaque );
 
   if ( size > NativeUInt( High( NativeInt ) ) - BUDGET_BLOCK_HEADER ) then
@@ -1068,6 +1069,7 @@ begin
   if ( not Assigned( address ) ) then Exit;
 
   var pBlock := PByte( address ) - BUDGET_BLOCK_HEADER;
+
   TInterlocked.Add( PJxlMemoryBudget( opaque ).Used, -Int64( PNativeUInt( pBlock )^ ) );
   HeapFree( GetProcessHeap, 0, pBlock );
 
@@ -1099,6 +1101,7 @@ begin
 
   var sOwn := ExtractFilePath( GetModuleName( HInstance ) );
   var sExe := ExtractFilePath( GetModuleName( 0 ) );
+
   Result := [ sOwn ];
 
   if ( not SameText( sOwn, sExe ) ) then Result := Result + [ sExe ];
@@ -1417,7 +1420,6 @@ begin
     for var eRole := Low( TJxlLibraryRole ) to High( TJxlLibraryRole ) do
       if ( GBindModules[ eRole ] <> 0 ) and SameText( sDll, LIBRARY_FILE_NAMES[ eRole ] ) then
         Exit( Pointer( GBindModules[ eRole ] ) );
-
   end;
 
   Result := nil;
@@ -1437,6 +1439,7 @@ begin
   for var eRole := Low( TJxlLibraryRole ) to High( TJxlLibraryRole ) do
   begin
     var hPinned: HMODULE := 0;
+
     GetModuleHandleExW( GET_MODULE_HANDLE_EX_FLAG_PIN or GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
       PWideChar( Pointer( AResolved.Modules[ eRole ] ) ), hPinned );
   end;
@@ -1475,6 +1478,7 @@ begin
     if GLibraryVerified then Exit;
 
     var rResolved := ResolveLibraries( '' );
+
     BindImports( rResolved );
     GLibraryLayout   := rResolved.Layout;
     GLibraryVerified := True;
@@ -1498,7 +1502,8 @@ begin
   if ( Trim( AFolder ) = '' ) then raise EArgumentException.Create( 'JxlCheckLibraryFolder needs a folder.' );
 
   var rResolved := ResolveLibraries( ExcludeTrailingPathDelimiter( AFolder ) );
-  Result        := rResolved.Layout;
+
+  Result := rResolved.Layout;
   rResolved.Release;
 
 end;

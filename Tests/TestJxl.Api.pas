@@ -278,6 +278,7 @@ begin
 
   try
     var rInfo := Default( JxlBasicInfo );
+
     JxlEncoderInitBasicInfo( @rInfo );
     rInfo.xsize                 := 2;
     rInfo.ysize                 := 2;
@@ -287,17 +288,21 @@ begin
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderSetBasicInfo( pEncoder, @rInfo ) ), 'SetBasicInfo' );
 
     var rColour := Default( JxlColorEncoding );
+
     JxlColorEncodingSetToLinearSRGB( @rColour, JXL_FALSE );
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderSetColorEncoding( pEncoder, @rColour ) ), 'SetColorEncoding' );
 
     var pSettings := JxlEncoderFrameSettingsCreate( pEncoder, nil );
+
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderSetFrameLossless( pSettings, JXL_TRUE ) ), 'SetFrameLossless' );
 
     var rFormat := Default( JxlPixelFormat );
+
     rFormat.num_channels := 3;
     rFormat.data_type    := JXL_TYPE_UINT8;
 
     var naPixels: TBytes;
+
     SetLength( naPixels, 2 * 2 * 3 );
     FillChar( naPixels[ 0 ], Length( naPixels ), 128 );
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderAddImageFrame( pSettings, @rFormat, PByte( naPixels ),
@@ -307,6 +312,7 @@ begin
 
     var pNext: PByte           := PByte( Result );
     var iAvailable: NativeUInt := Length( Result );
+
     Assert.AreEqual( Ord( JXL_ENC_SUCCESS ), Ord( JxlEncoderProcessOutput( pEncoder, @pNext, @iAvailable ) ), 'ProcessOutput' );
     SetLength( Result, pNext - PByte( Result ) );
   finally
@@ -338,10 +344,12 @@ begin
     JxlDecoderCloseInput( pDecoder );
 
     var rFormat := Default( JxlPixelFormat );
+
     rFormat.num_channels := 3;
     rFormat.data_type    := JXL_TYPE_UINT8;
 
     var naPixels: TBytes;
+
     SetLength( naPixels, 2 * 2 * 3 );
 
     var eStatus := JxlDecoderProcessInput( pDecoder );
@@ -351,6 +359,7 @@ begin
       if ( eStatus = JXL_DEC_COLOR_ENCODING ) then
       begin
         var rSrgb := Default( JxlColorEncoding );
+
         JxlColorEncodingSetToSRGB( @rSrgb, JXL_FALSE );
         Result := JxlDecoderSetOutputColorProfile( pDecoder, @rSrgb, nil, 0 );
 
@@ -393,12 +402,14 @@ begin
     JxlDecoderCloseInput( pDecoder );
 
     var rFormat := Default( JxlPixelFormat );
+
     rFormat.num_channels := 3;
     rFormat.data_type    := JXL_TYPE_UINT8;
 
-    var rInfo  := Default( JxlBasicInfo );
-    var naOut  := TBytes( nil );
-    Result     := JxlDecoderProcessInput( pDecoder );
+    var rInfo := Default( JxlBasicInfo );
+    var naOut := TBytes( nil );
+
+    Result := JxlDecoderProcessInput( pDecoder );
 
     while ( Result = JXL_DEC_BASIC_INFO ) or ( Result = JXL_DEC_NEED_IMAGE_OUT_BUFFER ) do
     begin
@@ -449,6 +460,7 @@ procedure TTestJxlApi.Test_Layout_TypesH_MatchesCProbe;
 begin
 
   var rFormat := Default( JxlPixelFormat );
+
   Expect( 'SizeOf(JxlPixelFormat)', SizeOf( JxlPixelFormat ), 16, 24 );
   Expect( 'JxlPixelFormat.align', PByte( @rFormat.align ) - PByte( @rFormat ), 12, 16 );
   Expect( 'SizeOf(JxlBitDepth)', SizeOf( JxlBitDepth ), 12, 12 );
@@ -484,6 +496,7 @@ begin
   var rChannel := Default( JxlExtraChannelInfo );
   var rLayer   := Default( JxlLayerInfo );
   var rFrame   := Default( JxlFrameHeader );
+
   Expect( 'SizeOf(JxlPreviewHeader)', SizeOf( JxlPreviewHeader ), 8, 8 );
   Expect( 'SizeOf(JxlAnimationHeader)', SizeOf( JxlAnimationHeader ), 16, 16 );
   Expect( 'SizeOf(JxlBasicInfo)', SizeOf( JxlBasicInfo ), 204, 204 );
@@ -511,6 +524,7 @@ procedure TTestJxlApi.Test_Layout_ColorEncoding_MatchesCProbe;
 begin
 
   var rColour := Default( JxlColorEncoding );
+
   Expect( 'SizeOf(JxlColorEncoding)', SizeOf( JxlColorEncoding ), 104, 104 );
   Expect( 'JxlColorEncoding.white_point_xy', PByte( @rColour.white_point_xy ) - PByte( @rColour ), 8, 8 );
   Expect( 'JxlColorEncoding.primaries', PByte( @rColour.primaries ) - PByte( @rColour ), 24, 24 );
@@ -527,6 +541,7 @@ begin
 
   var rProfile := Default( JxlColorProfile );
   var rBundle  := Default( JxlGainMapBundle );
+
   Expect( 'SizeOf(JxlMemoryManager)', SizeOf( JxlMemoryManager ), 12, 24 );
   Expect( 'SizeOf(JxlCmsInterface)', SizeOf( JxlCmsInterface ), 32, 64 );
   Expect( 'SizeOf(JxlColorProfile)', SizeOf( JxlColorProfile ), 120, 128 );
@@ -584,6 +599,7 @@ begin
 
   var naData   := TFile.ReadAllBytes( TestDataFile( 'splines.jxl' ) );
   var pDecoder := JxlDecoderCreate( nil );
+
   Assert.IsTrue( Assigned( pDecoder ), 'JxlDecoderCreate' );
 
   try
@@ -593,6 +609,7 @@ begin
     Assert.AreEqual( Ord( JXL_DEC_BASIC_INFO ), Ord( JxlDecoderProcessInput( pDecoder ) ), 'ProcessInput' );
 
     var rInfo := Default( JxlBasicInfo );
+
     Assert.AreEqual( Ord( JXL_DEC_SUCCESS ), Ord( JxlDecoderGetBasicInfo( pDecoder, @rInfo ) ), 'GetBasicInfo' );
     Assert.AreEqual( 2048, Integer( rInfo.xsize ), 'xsize' );
     Assert.AreEqual( 2048, Integer( rInfo.ysize ), 'ysize' );
@@ -612,6 +629,7 @@ begin
   JxlCheckLibrary;
 
   var rInfo: JxlBasicInfo;
+
   FillChar( rInfo, SizeOf( rInfo ), $AA );
   JxlEncoderInitBasicInfo( @rInfo );
   Assert.AreEqual( 8, Integer( rInfo.bits_per_sample ), 'bits_per_sample' );
@@ -632,6 +650,7 @@ begin
   JxlCheckLibrary;
 
   var rColour: JxlColorEncoding;
+
   FillChar( rColour, SizeOf( rColour ), $55 );
   JxlColorEncodingSetToSRGB( @rColour, JXL_FALSE );
   Assert.AreEqual( Ord( JXL_COLOR_SPACE_RGB ), Ord( rColour.color_space ), 'color_space' );
@@ -652,9 +671,11 @@ begin
   JxlCheckLibrary;
 
   var iSuggested := JxlResizableParallelRunnerSuggestThreads( 2048, 2048 );
+
   Assert.IsTrue( iSuggested >= 1, Format( 'SuggestThreads returned %d', [ iSuggested ] ) );
 
   var pResizable := JxlResizableParallelRunnerCreate( nil );
+
   Assert.IsTrue( Assigned( pResizable ), 'JxlResizableParallelRunnerCreate' );
 
   try
@@ -670,9 +691,11 @@ begin
   end;
 
   var iWorkers := JxlThreadParallelRunnerDefaultNumWorkerThreads;
+
   Assert.IsTrue( iWorkers >= 1, Format( 'DefaultNumWorkerThreads returned %d', [ iWorkers ] ) );
 
   var pFixed := JxlThreadParallelRunnerCreate( nil, 4 );
+
   Assert.IsTrue( Assigned( pFixed ), 'JxlThreadParallelRunnerCreate' );
 
   try
@@ -698,6 +721,7 @@ begin
 
   try
     var naJxl := EncodeLinearGrey128;
+
     Assert.AreEqual( Ord( JXL_DEC_ERROR ), Ord( DecodeAsSrgb( naJxl, False, iSample ) ),
       'without a CMS libjxl must refuse the sRGB output profile' );
     Assert.AreEqual( Ord( JXL_DEC_SUCCESS ), Ord( DecodeAsSrgb( naJxl, True, iSample ) ),
@@ -804,19 +828,23 @@ begin
   JxlCheckLibrary;
 
   var hJxl := GetModuleHandle( JXL_LIBRARY );
+
   Assert.IsTrue( hJxl <> 0, 'the verified DLL is loaded' );
   Assert.AreEqual( 0, Length( JxlFindMissingExports( hJxl, JXL_DECODE_EXPORTS ) ), 'decode exports' );
   Assert.AreEqual( 0, Length( JxlFindMissingExports( hJxl, JXL_ENCODE_EXPORTS ) ), 'encode exports' );
   Assert.AreEqual( 0, Length( JxlFindMissingExports( hJxl, JXL_STATS_EXPORTS ) ), 'stats exports' );
+
   // A single self-contained DLL exports the thread runners and the CMS itself; the split build has a DLL for each.
   var bSingle  := ( JxlLibraryLayout = jllSingleDll );
   var hThreads := if bSingle then hJxl else GetModuleHandle( JXL_THREADS_LIBRARY );
   var hCms     := if bSingle then hJxl else GetModuleHandle( JXL_CMS_LIBRARY );
+
   Assert.IsTrue( ( hThreads <> 0 ) and ( hCms <> 0 ), 'the verified thread-runner and CMS modules are loaded' );
   Assert.AreEqual( 0, Length( JxlFindMissingExports( hThreads, JXL_THREADS_EXPORTS ) ), 'thread exports' );
   Assert.AreEqual( 0, Length( JxlFindMissingExports( hCms, JXL_CMS_EXPORTS ) ), 'CMS exports' );
 
   var asMissing := JxlFindMissingExports( hJxl, [ 'JxlDecoderVersion', 'JxlBindingTestNoSuchExport', 'JxlEncoderVersion' ] );
+
   Assert.AreEqual( 1, Length( asMissing ), 'one invented name' );
   Assert.AreEqual( 'JxlBindingTestNoSuchExport', asMissing[ 0 ], False, 'the invented name is the one reported' );
   Assert.AreEqual( Length( JXL_DECODE_EXPORTS ), Length( JxlFindMissingExports( GetModuleHandle( kernel32 ), JXL_DECODE_EXPORTS ) ),
@@ -854,15 +882,18 @@ begin
 
   var sExeFolder := ExtractFilePath( ParamStr( 0 ) );
   var asFolders  := JxlLibraryDirectories;
+
   Assert.IsTrue( Length( asFolders ) >= 1, 'at least one folder' );
   Assert.AreEqual( sExeFolder, asFolders[ 0 ], True, 'the binding is linked into the executable, so its folder comes first' );
 
   var sTemp := TPath.Combine( TPath.GetTempPath, 'LibJxlTests-cwd-' + TGUID.NewGuid.ToString );
   var sCopy := TPath.Combine( sTemp, 'jxl_cwd_probe.dll' );
+
   TDirectory.CreateDirectory( sTemp );
   TFile.Copy( TPath.Combine( sExeFolder, JXL_LIBRARY ), sCopy );
 
   var sOldFolder := GetCurrentDir;
+
   SetCurrentDir( sTemp );
 
   try
@@ -887,6 +918,7 @@ begin
 
   var rManager := rBudget.Manager;
   var pFirst   := rManager.alloc( rManager.opaque, 600 );
+
   Assert.IsTrue( Assigned( pFirst ), 'a block within the limit' );
   Assert.AreEqual( Int64( 600 ), rBudget.Used, 'Used after the first block' );
   FillChar( pFirst^, 600, $5A );
@@ -895,6 +927,7 @@ begin
   Assert.AreEqual( Int64( 600 ), rBudget.Used, 'a refusal leaves Used unchanged' );
 
   var pSecond := rManager.alloc( rManager.opaque, 400 );
+
   Assert.IsTrue( Assigned( pSecond ), 'a block reaching the limit exactly' );
   Assert.AreEqual( Int64( 1000 ), rBudget.Peak, 'Peak' );
   rManager.free( rManager.opaque, pFirst );

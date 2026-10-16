@@ -206,11 +206,13 @@ begin
 
   var rDecoded   := JxlDecodePixels( TFile.ReadAllBytes( TestDataFile( 'splines.jxl' ) ) );
   var rReference := LoadPngPixels( TestDataFile( 'splines.png' ) );
+
   Assert.AreEqual( 2048, Integer( rDecoded.Width ), 'Width' );
   Assert.AreEqual( 2048, Integer( rDecoded.Height ), 'Height' );
   Assert.AreEqual( 3, Integer( rDecoded.NumChannels ), 'NumChannels' );
 
   var iDifference := MaxSampleDifference( rDecoded.Data, rReference.Data );
+
   Assert.IsTrue( iDifference <= 1, Format( 'largest sample difference from splines.png is %d', [ iDifference ] ) );
 
 end;
@@ -220,9 +222,11 @@ begin
 
   var rSource  := LoadPngPixels( TestDataFile( 'flower\flower.png' ) );
   var naJxl    := JxlEncodePixels( rSource, LosslessOptions );
+
   Assert.IsTrue( JxlHasSignature( naJxl ), 'the output is JPEG XL' );
 
   var rDecoded := JxlDecodePixels( naJxl );
+
   Assert.AreEqual( Integer( rSource.Width ), Integer( rDecoded.Width ), 'Width' );
   Assert.AreEqual( Integer( rSource.Height ), Integer( rDecoded.Height ), 'Height' );
   Assert.AreEqual( 3, Integer( rDecoded.NumChannels ), 'NumChannels' );
@@ -234,9 +238,11 @@ procedure TTestJxlGraphic.Test_EncodePixels_LosslessRgba_RoundTripsByteIdentical
 begin
 
   var rSource := LoadPngPixels( TestDataFile( 'flower\flower_alpha.png' ) );
+
   Assert.AreEqual( 4, Integer( rSource.NumChannels ), 'the reference PNG has alpha' );
 
   var rDecoded := JxlDecodePixels( JxlEncodePixels( rSource, LosslessOptions ) );
+
   Assert.AreEqual( 4, Integer( rDecoded.NumChannels ), 'NumChannels' );
   Assert.AreEqual( -1, FirstDifference( rSource.Data, rDecoded.Data ), 'first differing byte' );
 
@@ -248,30 +254,37 @@ begin
   var rSource    := LoadPngPixels( TestDataFile( 'flower\flower.png' ) );
   var naLossless := JxlEncodePixels( rSource, LosslessOptions );
   var rLossy     := LosslessOptions;
+
   rLossy.Lossless := False;
   rLossy.Distance := 2.0;
 
   var naLossy := JxlEncodePixels( rSource, rLossy );
+
   Assert.IsTrue( Length( naLossy ) < Length( naLossless ) div 2,
     Format( 'lossy %d bytes is not under half of lossless %d bytes', [ Length( naLossy ), Length( naLossless ) ] ) );
 
   var rDecoded := JxlDecodePixels( naLossy );
+
   Assert.AreNotEqual( -1, FirstDifference( rSource.Data, rDecoded.Data ), 'lossy output must not be pixel-identical' );
 
   var iDifference := MaxSampleDifference( rSource.Data, rDecoded.Data );
+
   Assert.IsTrue( iDifference < 128, Format( 'largest sample difference %d is not a plausible lossy result', [ iDifference ] ) );
 
   rLossy.Distance := 0.5;
 
   var naFine := JxlEncodePixels( rSource, rLossy );
+
   rLossy.Distance := 4.0;
 
   var naCoarse := JxlEncodePixels( rSource, rLossy );
+
   Assert.IsTrue( Length( naFine ) > Length( naCoarse ), Format( 'distance 0.5 gave %d bytes, distance 4.0 %d',
     [ Length( naFine ), Length( naCoarse ) ] ) );
 
   var fFineError   := MeanSampleDifference( rSource.Data, JxlDecodePixels( naFine ).Data );
   var fCoarseError := MeanSampleDifference( rSource.Data, JxlDecodePixels( naCoarse ).Data );
+
   Assert.IsTrue( fFineError < fCoarseError, Format( 'distance 0.5 mean error %.3f is not below distance 4.0''s %.3f',
     [ fFineError, fCoarseError ] ) );
 
@@ -282,11 +295,13 @@ begin
 
   var rSource  := LoadPngPixels( TestDataFile( 'splines.png' ) );
   var rOptions := TJxlEncodeOptions.Default;
+
   rOptions.Effort := 1;
 
   for var fDistance in TArray<Single>.Create( 0.0, -1.0 ) do
   begin
     var naEncoded: TBytes := nil;
+
     rOptions.Distance := fDistance;
     Assert.WillNotRaiseAny( procedure begin naEncoded := JxlEncodePixels( rSource, rOptions ); end,
       Format( 'distance %g is accepted', [ fDistance ] ) );
@@ -313,6 +328,7 @@ begin
   end;
 
   var naJpeg := TFile.ReadAllBytes( TestDataFile( 'flower\flower.png.im_q85_420.jpg' ) );
+
   Assert.WillRaise( procedure begin JxlTranscodeJpegToJxl( naJpeg, 0 ); end, EArgumentException, 'transcode effort 0' );
 
   rOptions          := LosslessOptions;
@@ -326,6 +342,7 @@ begin
 
   var naGarbage: TBytes := [ $FF, $0A, 1, 2, 3, 4, 5, 6 ];
   var sMissing := TPath.Combine( TPath.GetTempPath, 'LibJxlTests-missing-' + TGUID.NewGuid.ToString + '.jxl' );
+
   Assert.WillRaise( procedure begin JxlDecodeToBitmap( naGarbage, nil ); end, EArgumentException, 'invalid data, nil bitmap' );
   Assert.WillRaise( procedure begin JxlDecodeToBitmap( nil, nil ); end, EArgumentException, 'empty data, nil bitmap' );
   Assert.WillRaise( procedure begin JxlDecodeFileToBitmap( sMissing, nil ); end, EArgumentException, 'missing file, nil bitmap' );
@@ -336,16 +353,19 @@ procedure TTestJxlGraphic.Test_EncodePixels_IccProfile_RoundTripKeepsProfile;
 begin
 
   var rSource := LoadPngPixels( TestDataFile( 'flower\flower.png' ) );
+
   rSource.IccProfile := TFile.ReadAllBytes( TPath.Combine( ExtractFileDir( ExtractFileDir( TestDataFile( 'splines.jxl' ) ) ),
     'external\Compact-ICC-Profiles\profiles\Rec2020-v4.icc' ) );
 
   var naJxl := JxlEncodePixels( rSource, LosslessOptions );
   var rOwn  := JxlDecodePixels( naJxl, jcoImageProfile );
+
   Assert.AreEqual( -1, FirstDifference( rSource.Data, rOwn.Data ), 'decoded in its own profile the samples are unchanged' );
   Assert.AreEqual( -1, FirstDifference( rSource.IccProfile, rOwn.IccProfile ), 'the decoded profile is the one encoded' );
 
   var rSrgb := JxlDecodePixels( naJxl, jcoSrgb );
   var iDifference := MaxSampleDifference( rSource.Data, rSrgb.Data );
+
   Assert.IsTrue( iDifference > 8, Format( 'converted to sRGB the samples moved by at most %d: the profile was not stored',
     [ iDifference ] ) );
 
@@ -370,17 +390,20 @@ begin
 
   var naJxl := JxlEncodePixels( rGrey, LosslessOptions );
   var rOwn  := JxlDecodePixels( naJxl, jcoImageProfile );
+
   Assert.AreEqual( 1, Integer( rOwn.NumChannels ), 'jcoImageProfile keeps grey as 1 channel' );
   Assert.AreEqual( -1, FirstDifference( rGrey.Data, rOwn.Data ), 'grey samples' );
   Assert.IsTrue( Length( rOwn.IccProfile ) > 20, 'a profile was returned' );
   Assert.AreEqual( 'GRAY', TEncoding.ANSI.GetString( rOwn.IccProfile, 16, 4 ), False, 'the ICC colour space is grey' );
 
   var rAgain := JxlDecodePixels( JxlEncodePixels( rOwn, LosslessOptions ), jcoImageProfile );
+
   Assert.AreEqual( -1, FirstDifference( rGrey.Data, rAgain.Data ), 'grey pixels re-encoded with their grey profile' );
 
   // With jcoSrgb the grey samples become 3-channel sRGB; libjxl's profile is grey, so none is returned, and the
   // pixels encode again (as sRGB) and decode to the same grey values.
   var rSrgb := JxlDecodePixels( naJxl, jcoSrgb );
+
   Assert.AreEqual( 3, Integer( rSrgb.NumChannels ), 'jcoSrgb expands grey to RGB' );
   Assert.AreEqual( 0, Length( rSrgb.IccProfile ), 'no grey profile is attached to RGB samples' );
   Assert.AreEqual( -1, FirstDifference( rSrgb.Data, JxlDecodePixels( JxlEncodePixels( rSrgb, LosslessOptions ) ).Data ),
@@ -406,6 +429,7 @@ begin
     oSource.Effort   := 2;
 
     var rLimits := oSource.Limits;
+
     rLimits.MaxJpegScans := 9;
     oSource.Limits       := rLimits;
     oCopy.Assign( oSource );
@@ -425,9 +449,11 @@ begin
 
       // LoadFromStream reads from the current position.
       var naJunk: TBytes := [ 1, 2, 3, 4, 5 ];
+
       oStream.WriteBuffer( naJunk, Length( naJunk ) );
 
       var naFile := TFile.ReadAllBytes( sFileName );
+
       oStream.WriteBuffer( naFile, Length( naFile ) );
       oStream.Position := Length( naJunk );
       oCopy.LoadFromStream( oStream );
@@ -446,6 +472,7 @@ begin
 
     // Corrupt data.
     var naCorrupt: TBytes := [ $FF, $0A, $FA, $11, $22, $33, $44, $55, $66, $77 ];
+
     oStream.Clear;
     oStream.WriteBuffer( naCorrupt, Length( naCorrupt ) );
     oStream.Position := 0;
@@ -477,11 +504,13 @@ begin
   begin
     var naJpeg := TFile.ReadAllBytes( TestDataFile( sName ) );
     var naJxl  := JxlTranscodeJpegToJxl( naJpeg, TEST_EFFORT );
+
     Assert.IsTrue( JxlHasSignature( naJxl ), sName + ': the output is JPEG XL' );
     Assert.IsTrue( Length( naJxl ) < Length( naJpeg ), Format( '%s: %d bytes recompressed to %d', [ sName, Length( naJpeg ),
       Length( naJxl ) ] ) );
 
     var naRebuilt := JxlReconstructJpeg( naJxl );
+
     Assert.AreEqual( Length( naJpeg ), Length( naRebuilt ), sName + ': reconstructed length' );
     Assert.AreEqual( -1, FirstDifference( naJpeg, naRebuilt ), sName + ': first differing byte' );
   end;
@@ -492,6 +521,7 @@ procedure TTestJxlGraphic.Test_ReconstructJpeg_NotFromJpeg_RaisesEJxlError;
 begin
 
   var naJxl := TFile.ReadAllBytes( TestDataFile( 'splines.jxl' ) );
+
   Assert.WillRaise( procedure begin JxlReconstructJpeg( naJxl ); end, EJxlError );
 
 end;
@@ -593,16 +623,19 @@ begin
     Assert.AreEqual( oSource.Width, oLoaded.Width, 'Width' );
 
     var iDifference := MaxSampleDifference( BitmapBytes( oSource ), BitmapBytes( oLoaded ) );
+
     Assert.IsTrue( iDifference <= 1, Format( 'largest sample difference is %d', [ iDifference ] ) );
 
     // Independent oracle: the PNG reader's straight samples, premultiplied here and laid out as BGRA.
     var rReference := LoadPngPixels( TestDataFile( 'flower\flower_alpha.png' ) );
     var naExpected: TBytes;
+
     SetLength( naExpected, Length( rReference.Data ) );
 
     for var iI := 0 to Length( rReference.Data ) div 4 - 1 do
     begin
       var iAlpha := Integer( rReference.Data[ iI * 4 + 3 ] );
+
       naExpected[ iI * 4 ]     := Byte( ( rReference.Data[ iI * 4 + 2 ] * iAlpha + 127 ) div 255 );
       naExpected[ iI * 4 + 1 ] := Byte( ( rReference.Data[ iI * 4 + 1 ] * iAlpha + 127 ) div 255 );
       naExpected[ iI * 4 + 2 ] := Byte( ( rReference.Data[ iI * 4 ] * iAlpha + 127 ) div 255 );
@@ -623,6 +656,7 @@ begin
 
   var naValid := TFile.ReadAllBytes( TestDataFile( 'splines.jxl' ) );
   var naGarbage: TBytes;
+
   SetLength( naGarbage, 4096 );
   RandSeed := 20261016;
 
@@ -632,6 +666,7 @@ begin
   naGarbage[ 1 ] := $0A;
 
   var naTruncated := Copy( naValid, 0, Length( naValid ) div 2 );
+
   Assert.WillRaise( procedure begin JxlDecodePixels( naGarbage ); end, EJxlError, 'random bytes after a signature' );
   Assert.WillRaise( procedure begin JxlDecodePixels( naTruncated ); end, EJxlError, 'truncated file' );
   Assert.WillRaise( procedure begin JxlDecodePixels( nil ); end, EJxlError, 'empty input' );
@@ -642,6 +677,7 @@ procedure TTestJxlGraphic.Test_EncodePixels_InconsistentRecord_RaisesEArgumentEx
 begin
 
   var rPixels := Default( TJxlPixels );
+
   rPixels.Width       := 4;
   rPixels.Height      := 4;
   rPixels.NumChannels := 3;
@@ -692,6 +728,7 @@ begin
 
     var rReference := LoadPngPixels( TestDataFile( 'splines.png' ) );
     var naExpected: TBytes;
+
     SetLength( naExpected, Length( rReference.Data ) div 3 * 4 );
 
     for var iI := 0 to Length( rReference.Data ) div 3 - 1 do
@@ -703,6 +740,7 @@ begin
     end;
 
     var iDifference := MaxSampleDifference( naExpected, BitmapBytes( oBitmap ) );
+
     Assert.IsTrue( iDifference <= 1, Format( 'largest sample difference from splines.png is %d', [ iDifference ] ) );
   finally
     oBitmap.Free;
@@ -719,9 +757,11 @@ begin
 
   try
     var rReference := LoadPngPixels( TestDataFile( 'splines.png' ) );
+
     JxlPixelsToBitmap( rReference, oBitmap );
 
     var rPixels := JxlBitmapToPixels( oBitmap );
+
     Assert.AreEqual( 3, Integer( rPixels.NumChannels ), 'NumChannels' );
     Assert.IsFalse( rPixels.AlphaPremultiplied, 'AlphaPremultiplied' );
     Assert.AreEqual( -1, FirstDifference( rReference.Data, rPixels.Data ), 'first differing byte' );
@@ -739,6 +779,7 @@ begin
   var sPngName   := TestDataFile( 'flower\flower_alpha.png' );
   var rReference := LoadPngPixels( sPngName );
   var rPixels    := Default( TJxlPixels );
+
   oPng := TPngImage.Create;
 
   try
@@ -753,10 +794,12 @@ begin
   Assert.AreEqual( -1, FirstDifference( rReference.Data, rPixels.Data ), 'first byte differing from the PNG reader' );
 
   var sFileName := TPath.Combine( TPath.GetTempPath, 'LibJxlTests-' + TGUID.NewGuid.ToString + '.jxl' );
+
   JxlEncodePixelsToFile( rPixels, sFileName, LosslessOptions );
 
   try
     var rDecoded := JxlDecodePixels( TFile.ReadAllBytes( sFileName ) );
+
     Assert.AreEqual( 4, Integer( rDecoded.NumChannels ), 'decoded NumChannels' );
     Assert.AreEqual( -1, FirstDifference( rReference.Data, rDecoded.Data ), 'first byte differing after the round trip' );
   finally
@@ -772,6 +815,7 @@ begin
 
   var rReference := LoadPngPixels( TestDataFile( 'flower\flower_alpha.png' ) );
   var naJxl: TBytes;
+
   oBitmap := TBitmap.Create;
 
   try
@@ -782,6 +826,7 @@ begin
   end;
 
   var rDecoded := JxlDecodePixels( naJxl );
+
   Assert.AreEqual( Length( rReference.Data ), Length( rDecoded.Data ), 'data length' );
 
   var iDiffering := 0;
@@ -804,6 +849,7 @@ var
 begin
 
   var rPixels := Default( TJxlPixels );
+
   oPng := TPngImage.CreateBlank( COLOR_GRAYSCALE, 8, 3, 2 );
 
   try

@@ -203,6 +203,7 @@ begin
 
     var bAlpha := ( oPng.Header.ColorType = COLOR_RGBALPHA );
     var bGrey  := ( oPng.Header.ColorType = COLOR_GRAYSCALE );
+
     Result := Default( TJxlPixels );
     Result.Width              := oPng.Width;
     Result.Height             := oPng.Height;
@@ -252,7 +253,8 @@ end;
 function ConformanceCaseFolder( const ACaseName: string ): string;
 begin
 
-  Result    := '';
+  Result := '';
+
   var sRoot := ExcludeTrailingPathDelimiter( GetEnvironmentVariable( 'JXL_CONFORMANCE' ) );
 
   if ( sRoot <> '' ) and TDirectory.Exists( TPath.Combine( sRoot, 'testcases' ) ) then sRoot := TPath.Combine( sRoot, 'testcases' );

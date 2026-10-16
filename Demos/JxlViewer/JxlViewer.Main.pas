@@ -589,6 +589,7 @@ begin
 
   try
     var rInfo := JxlValidate( AData, JxlGetDefaultLimits, ACancellation );
+
     rTimer.Stop;
     AResults.Add( FormatValidation( AName, rInfo, rTimer.ElapsedMilliseconds, 'in memory' ) );
   except
@@ -619,6 +620,7 @@ begin
 
   var sName := ExtractFileName( AFileName );
   var naHead: TBytes;
+
   oStream := TFileStream.Create( AFileName, fmOpenRead or fmShareDenyWrite );
 
   try
@@ -638,6 +640,7 @@ begin
 
   try
     var rInfo := JxlValidate( AFileName, ACancellation );
+
     rTimer.Stop;
     AResults.Add( FormatValidation( sName, rInfo, rTimer.ElapsedMilliseconds, 'including reading the file' ) );
   except
@@ -810,6 +813,7 @@ begin
   if FLibraryAvailable then
   begin
     var rLimits := JxlGetDefaultLimits;
+
     Log( Format( 'libjxl %s loaded (%s).', [ JxlVersionToString( JxlDecoderVersion ),
       if ( JxlLibraryLayout = jllSplitDlls ) then 'jxl.dll with jxl_threads.dll and jxl_cms.dll' else 'one DLL' ] ) );
     Log( Format( 'Limits: %.0n megapixels, %d extra channels, %s input, %s output, %s libjxl memory, %d JPEG scans.',
@@ -878,6 +882,7 @@ begin
   // Runs on the UI thread (TThread synchronises OnTerminate) after the work has returned.
   var oJob    := Sender as TJxlJob;
   var pFinish := FJobFinish;
+
   FJob          := nil;
   FJobFinish    := nil;
   Screen.Cursor := crDefault;
@@ -911,8 +916,11 @@ begin
     on E: Exception do
     begin
       oLoaded.Free;
+
       if ( not IsExpectedFailure( E ) ) then raise;
+
       var sMessage := Format( 'Could not open %s: %s', [ ExtractFileName( sFileName ), DescribeFailure( E ) ] );
+
       Log( sMessage );
       MessageDlg( sMessage, mtError, [ mbOK ], 0 );
       Exit;
@@ -1003,6 +1011,7 @@ procedure TMainForm.ShowInfo( ALoadMilliseconds: Int64 );
 begin
 
   var sInfoError := '';
+
   FHasInfo := False;
 
   if ( FPicture.Graphic is TJxlImage ) then
@@ -1017,6 +1026,7 @@ begin
   end;
 
   var oLines := mmoInfo.Lines;
+
   oLines.BeginUpdate;
 
   try
@@ -1062,7 +1072,6 @@ begin
         end
         else
           oLines.Add( Format( 'Frames: %d', [ FInfo.FrameCount ] ) );
-
       end;
 
     end;
@@ -1091,6 +1100,7 @@ var
 begin
 
   var oGraphic := FPicture.Graphic;
+
   AJxlFileName := '';
 
   if ( oGraphic is TPngImage ) and JxlTryPngToPixels( TPngImage( oGraphic ), APixels ) then
@@ -1171,7 +1181,6 @@ begin
         ARoute := 'via a VCL bitmap, first frame only (any alpha premultiplied)'
       else
         ARoute := 'via a VCL bitmap (any alpha premultiplied)';
-
     end;
 
     APixels := JxlBitmapToPixels( oBitmap );
@@ -1288,10 +1297,13 @@ begin
       // The file is written only once the encode has succeeded, so a cancelled save leaves nothing behind.
       var rTimer := TStopwatch.StartNew;
       var naData := JxlEncodePixels( rSource, rOptions, rLimits, ACancellation );
+
       rTimer.Stop;
       TFile.WriteAllBytes( sTarget, naData );
+
       var iSize     := Int64( Length( naData ) );
       var sSettings := if rOptions.Lossless then 'lossless' else Format( 'distance %.1f', [ rOptions.Distance ] );
+
       AResults.Add( Format( 'Saved %s (%s, effort %d; %s): encoded in %d ms, %s, %s, %.2f bits per pixel.', [ sTargetName,
         sSettings, rOptions.Effort, sRoute, rTimer.ElapsedMilliseconds, FormatBytes( iSize ),
         DescribeComparison( iSize, iSourceSize, sSourceName ), 8 * iSize / ( Int64( rSource.Width ) * rSource.Height ) ] ) );
@@ -1327,6 +1339,7 @@ begin
       var naJpeg := TFile.ReadAllBytes( sSource );
       var rTimer := TStopwatch.StartNew;
       var naJxl  := JxlTranscodeJpegToJxl( naJpeg, iEffort, JxlGetDefaultLimits, ACancellation );
+
       rTimer.Stop;
       TFile.WriteAllBytes( sTarget, naJxl );
       AResults.Add( Format( 'Recompressed %s (%s) to %s (%s, %s the JPEG) in %d ms (in memory), reversibly.', [ sSourceName,
@@ -1404,7 +1417,6 @@ begin
         AResults.Add( Format( 'Byte-identical to the original %s.', [ ExtractFileName( sOriginal ) ] ) )
       else
         AResults.Add( Format( 'DIFFERS from the original %s, first at byte %d.', [ ExtractFileName( sOriginal ), iDifference ] ) );
-
     end, nil );
 
 end;

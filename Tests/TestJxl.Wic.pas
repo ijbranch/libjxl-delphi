@@ -123,7 +123,8 @@ var
   intfConverted: IWICBitmapSource;
 begin
 
-  Result     := Default( TBgraImage );
+  Result := Default( TBgraImage );
+
   var hrInit := CoInitializeEx( nil, COINIT_APARTMENTTHREADED );
 
   try
@@ -141,6 +142,7 @@ begin
 
     var iWidth: UINT  := 0;
     var iHeight: UINT := 0;
+
     OleCheck( intfConverted.GetSize( iWidth, iHeight ) );
     Result.Width  := iWidth;
     Result.Height := iHeight;
@@ -208,20 +210,24 @@ begin
 
   var rSource  := LoadPngPixels( TestDataFile( APngName ) );
   var rOptions := TJxlEncodeOptions.Default;
+
   rOptions.Lossless := True;
   rOptions.Effort   := TEST_EFFORT;
 
   var naJxl     := JxlEncodePixels( rSource, rOptions );
   var sFileName := TPath.Combine( TPath.GetTempPath, 'LibJxlTests-' + TGUID.NewGuid.ToString + '.jxl' );
+
   TFile.WriteAllBytes( sFileName, naJxl );
 
   try
     var rWic     := WicDecodeBgra( sFileName );
     var rDecoded := JxlDecodePixels( naJxl );
+
     Assert.AreEqual( AChannels, rDecoded.NumChannels, 'binding NumChannels' );
 
     var rBinding := PixelsToBgra( rDecoded );
     var rPng     := PixelsToBgra( rSource );
+
     Assert.AreEqual( rPng.Width, rWic.Width, 'WIC width' );
     Assert.AreEqual( rPng.Height, rWic.Height, 'WIC height' );
     Assert.AreEqual( -1, FirstDifference( rBinding.Data, rWic.Data ), 'first byte where the binding and WIC differ' );
@@ -262,6 +268,7 @@ begin
   var sFileName := TPath.Combine( sFolder, 'input.jxl' );
   var rWic      := WicDecodeBgra( sFileName );
   var rBinding  := PixelsToBgra( JxlDecodePixels( TFile.ReadAllBytes( sFileName ), jcoImageProfile ) );
+
   CompareBgra( rBinding, rWic, iMaxColour, fMeanColour, iMaxAlpha );
   Assert.AreEqual( 0, iMaxAlpha, 'alpha differs (the image is opaque)' );
   Assert.IsTrue( iMaxColour <= LOSSY_MAX_DIFFERENCE, Format( 'largest colour difference %d exceeds %d (mean %.4f)',
