@@ -1,0 +1,3 @@
+# Delphi sources and project files use CRLF: stored normalised, checked out with CRLF.
+* text=auto eol=crlf
+*.res binary

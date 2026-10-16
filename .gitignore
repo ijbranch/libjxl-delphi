@@ -1,0 +1,18 @@
+# Delphi build output and IDE state
+Win32/
+Win64/
+__history/
+__recovery/
+*.dcu
+*.identcache
+*.local
+*.stat
+*.dsk
+*.~*
+*.delphilsp.json
+*.exe
+
+# Copied by CopyJxlDlls.ps1 and written by the test runner
+*.dll
+*.pdb
+*-results.xml

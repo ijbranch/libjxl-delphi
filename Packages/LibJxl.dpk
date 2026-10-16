@@ -1,0 +1,61 @@
+﻿(* Copyright (c) 2026 Ian Branch. All rights reserved.
+ *
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ *)
+
+{
+  LibJxl - Delphi binding for libjxl (JPEG XL), runtime-only package.
+
+  Contains the C API imports (Jxl.Api.*) and the VCL graphic class and routines (Jxl.Graphic). It registers no
+  components and is never installed into the IDE. At run time it needs jxl.dll (or, for upstream's shared build,
+  jxl.dll, jxl_threads.dll and jxl_cms.dll with their dependencies) next to the executable or the package; see
+  ..\README.md.
+}
+
+package LibJxl;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE RELEASE}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'LibJxl - JPEG XL (libjxl) binding'}
+{$LIBSUFFIX AUTO}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  rtl,
+  vcl,
+  vclimg;
+
+contains
+  Jxl.Api.Types in '..\Source\Jxl.Api.Types.pas',
+  Jxl.Api.Decode in '..\Source\Jxl.Api.Decode.pas',
+  Jxl.Api.Encode in '..\Source\Jxl.Api.Encode.pas',
+  Jxl.Api.Threads in '..\Source\Jxl.Api.Threads.pas',
+  Jxl.Api.Cms in '..\Source\Jxl.Api.Cms.pas',
+  Jxl.Graphic in '..\Source\Jxl.Graphic.pas';
+
+end.

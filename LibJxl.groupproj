@@ -1,0 +1,60 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{8E4B7C21-5D3A-4F9E-B6A2-1C7D9E3F5A84}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Packages\LibJxl.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Tests\LibJxlTests.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Demos\JxlViewer\JxlViewer.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="LibJxl">
+        <MSBuild Projects="Packages\LibJxl.dproj"/>
+    </Target>
+    <Target Name="LibJxl:Clean">
+        <MSBuild Projects="Packages\LibJxl.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="LibJxl:Make">
+        <MSBuild Projects="Packages\LibJxl.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="LibJxlTests">
+        <MSBuild Projects="Tests\LibJxlTests.dproj"/>
+    </Target>
+    <Target Name="LibJxlTests:Clean">
+        <MSBuild Projects="Tests\LibJxlTests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="LibJxlTests:Make">
+        <MSBuild Projects="Tests\LibJxlTests.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="JxlViewer">
+        <MSBuild Projects="Demos\JxlViewer\JxlViewer.dproj"/>
+    </Target>
+    <Target Name="JxlViewer:Clean">
+        <MSBuild Projects="Demos\JxlViewer\JxlViewer.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="JxlViewer:Make">
+        <MSBuild Projects="Demos\JxlViewer\JxlViewer.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="LibJxl;LibJxlTests;JxlViewer"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="LibJxl:Clean;LibJxlTests:Clean;JxlViewer:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="LibJxl:Make;LibJxlTests:Make;JxlViewer:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
