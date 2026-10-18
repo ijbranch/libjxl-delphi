@@ -16,3 +16,6 @@ __recovery/
 *.dll
 *.pdb
 *-results.xml
+
+# Build-JxlDll.ps1 work folder
+libjxl-single-dll/

@@ -31,6 +31,7 @@ or the JPEG committee. "JPEG XL" and "libjxl" refer to their work; problems in l
 | `Demos/JxlViewer/JxlViewer.dpr` | VCL demo: a JPEG XL viewer and converter |
 | `LibJxl.groupproj` | Project group: the package, the tests and the demo |
 | `CopyJxlDlls.ps1` | Post-build step of the tests and the demo: copies the libjxl DLLs next to the executable |
+| `SingleDll/Build-JxlDll.ps1` | Builds libjxl as one self-contained `jxl.dll` from an unmodified release (with `jxl_dll.cmake`, `jxl_version.rc.in`) |
 | `LICENSE`, `THIRD-PARTY-NOTICES.md`, `third-party/libjxl/` | This binding's licence; libjxl's licence and patent grant |
 
 ## Getting libjxl
@@ -58,8 +59,32 @@ The binding needs libjxl's DLLs, built for the same platform as your executable.
 2. **This repository's releases** carry a convenience copy of exactly those six DLLs per architecture, byte-identical
    to upstream's (same SHA-256 as above), with libjxl's licence, patent grant and the third-party licences from the
    official archive. Prefer upstream's page when you can.
-3. **vcpkg:** `vcpkg install libjxl:x64-windows` (or `x86-windows`); the DLLs are in `installed\<triplet>\bin`.
-4. **Build libjxl from source** with CMake and MSVC or clang-cl, once per platform
+3. **One self-contained `jxl.dll` (Win64)**, built from the unmodified libjxl v0.12.0 source by
+   `SingleDll/Build-JxlDll.ps1` and attached to this repository's releases as `libjxl-0.12.0-single-dll-x64.zip`.
+   It links libjxl, its CMS, its thread pool, Brotli, Highway and the C runtime into one file that imports only
+   `KERNEL32.dll`: deploy that one DLL, with no Visual C++ Redistributable. The binding detects this layout by
+   itself. It is not an official libjxl binary, so its `BUILD-INFO.txt` records the tag, commit, submodules and
+   toolchain, and you can rebuild it yourself (below). SHA-256 of the release build:
+
+   | File | SHA-256 |
+   |---|---|
+   | `jxl.dll` | `a45cb3551dd4ec7a1881741476cf6f240f76ca8a3be23f50603e15674d61a560` |
+   | `libjxl-0.12.0-single-dll-x64.zip` | `9390c7a610994cd8e849393ea305b865e9d2c8fdb9c2d5b8a34bae3c4d94c4a0` |
+
+   To build it yourself (Visual Studio 2022 or 2026, or its Build Tools, with the C++ workload and both clang
+   components: "C++ Clang Compiler for Windows" and "MSBuild support for LLVM (clang-cl) toolset"; and git):
+
+   ```powershell
+   .\SingleDll\Build-JxlDll.ps1                 # Win64, libjxl v0.12.0
+   .\SingleDll\Build-JxlDll.ps1 -Ref v0.12.1    # a later release, when there is one
+   ```
+
+   It clones libjxl at the tag into `.\libjxl-single-dll`, builds, checks the DLL (machine type, hardening flags,
+   imports, exports against libjxl's public headers) and writes the zip and a separate zip with `jxl.pdb` to
+   `libjxl-single-dll\dist`. A rebuild with a different compiler version gives a different SHA-256. `-Arch Win32`
+   builds an x86 DLL the same way; no x86 single DLL is published yet.
+4. **vcpkg:** `vcpkg install libjxl:x64-windows` (or `x86-windows`); the DLLs are in `installed\<triplet>\bin`.
+5. **Build libjxl from source** with CMake and MSVC or clang-cl, once per platform
    ([BUILDING.md](https://github.com/libjxl/libjxl/blob/main/BUILDING.md); `git submodule update --init --recursive`
    first):
 
@@ -272,6 +297,12 @@ CMYK, JPEG reconstruction, progressive, greyscale, 32-bit float, a large VarDCT 
   cancelled save.
 - At start-up it calls `JxlCheckLibrary`, explains missing DLLs (viewing other formats still works) and logs the
   active resource limits.
+
+## See also
+
+- [gllImage](https://github.com/ijbranch/gllImage): VCL picture viewer controls built on this binding, a
+  stand-alone `TgllImageView` and the data-aware `TgllDBImage` (a `TDBImage` replacement), with zoom, pan, scroll
+  bars and rotation that keeps a JPEG XL as JPEG XL.  BSD 3-Clause.
 
 ## Licences
 
