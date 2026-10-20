@@ -151,6 +151,11 @@ function JxlSignatureCheck( buf: PByte; len: NativeUInt ): JxlSignature; cdecl; 
 function JxlDecoderCreate( memory_manager: PJxlMemoryManager ): PJxlDecoder; cdecl; external JXL_LIBRARY delayed;
 
 /// <summary>Re-initialises a decoder for another image; the memory manager is kept.</summary>
+/// <remarks>
+///   Release a buffer set with <see cref="JxlDecoderSetJPEGBuffer" /> first: up to libjxl 0.12.0 a reset keeps it,
+///   so a later JPEG reconstruction on this decoder writes into it after you may have freed it (fixed upstream
+///   in #5029).
+/// </remarks>
 /// <param name="dec">The decoder.</param>
 procedure JxlDecoderReset( dec: PJxlDecoder ); cdecl; external JXL_LIBRARY delayed;
 
@@ -161,6 +166,10 @@ procedure JxlDecoderDestroy( dec: PJxlDecoder ); cdecl; external JXL_LIBRARY del
 /// <summary>
 ///   Rewinds the decoder to the beginning; the same input must be given again. Settings and subscriptions are kept.
 /// </summary>
+/// <remarks>
+///   Release a buffer set with <see cref="JxlDecoderSetJPEGBuffer" /> first: up to libjxl 0.12.0 a rewind keeps it,
+///   with the same use-after-free risk as <see cref="JxlDecoderReset" /> (fixed upstream in #5029).
+/// </remarks>
 /// <param name="dec">The decoder.</param>
 procedure JxlDecoderRewind( dec: PJxlDecoder ); cdecl; external JXL_LIBRARY delayed;
 
