@@ -2,6 +2,9 @@
 #
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
+# Desktop: the .dproj post-build events run this as "powershell", the edition every Windows has (also on
+# other machines building libjxl-delphi).
+#Requires -PSEdition Desktop
 
 <#
 .SYNOPSIS

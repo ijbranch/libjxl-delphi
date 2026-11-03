@@ -72,7 +72,8 @@ The binding needs libjxl's DLLs, built for the same platform as your executable.
    | `libjxl-0.12.0-single-dll-x64.zip` | `9390c7a610994cd8e849393ea305b865e9d2c8fdb9c2d5b8a34bae3c4d94c4a0` |
 
    To build it yourself (Visual Studio 2022 or 2026, or its Build Tools, with the C++ workload and both clang
-   components: "C++ Clang Compiler for Windows" and "MSBuild support for LLVM (clang-cl) toolset"; and git):
+   components: "C++ Clang Compiler for Windows" and "MSBuild support for LLVM (clang-cl) toolset"; git; and PowerShell 7,
+   `pwsh`, which the script requires):
 
    ```powershell
    .\SingleDll\Build-JxlDll.ps1                 # Win64, libjxl v0.12.0
