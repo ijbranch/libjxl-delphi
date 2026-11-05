@@ -127,8 +127,8 @@
         <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=LibJxl Delphi binding tests;FileVersion=1.0.0.232;InternalName=LibJxlTests;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=LibJxlTests.exe;ProductName=libjxl;ProductVersion=1.0.0.232;Comments=</VerInfo_Keys>
-        <VerInfo_Build>232</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=Ian Branch;FileDescription=LibJxl Delphi binding tests;FileVersion=1.0.0.233;InternalName=LibJxlTests;LegalCopyright=Copyright (c) 2026 Ian Branch;LegalTrademarks=;OriginalFilename=LibJxlTests.exe;ProductName=libjxl;ProductVersion=1.0.0.233;Comments=</VerInfo_Keys>
+        <VerInfo_Build>233</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppDPIAwarenessMode>unaware</AppDPIAwarenessMode>
