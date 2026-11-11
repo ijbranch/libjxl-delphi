@@ -29,7 +29,7 @@
   Win64 (x64, the default) or Win32 (x86).
 
 .PARAMETER Ref
-  The libjxl tag to build. Default: v0.12.0.
+  The libjxl tag to build. Default: v0.13.0.
 
 .PARAMETER Source
   The libjxl repository to clone. Default: https://github.com/libjxl/libjxl.git.
@@ -45,7 +45,7 @@
 #>
 param(
   [ValidateSet( 'Win64', 'Win32' )] [string] $Arch = 'Win64',
-  [string] $Ref = 'v0.12.0',
+  [string] $Ref = 'v0.13.0',
   [string] $Source = 'https://github.com/libjxl/libjxl.git',
   [string] $WorkDir = ( Join-Path ( Get-Location ).Path 'libjxl-single-dll' )
 )

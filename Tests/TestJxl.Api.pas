@@ -89,6 +89,14 @@ type
     [ Test ]
     procedure Test_EncoderInitBasicInfo_FillsDefaultsAtCOffsets;
     /// <summary>
+    ///   Proves the two frame options added in libjxl 0.13.0 (<c>JXL_ENC_FRAME_SETTING_STRIP_ALPHA</c>,
+    ///   <c>JXL_ENC_FRAME_SETTING_JPEG_RECON_LFS</c>) carry the ids the loaded library knows: a 0.13.0 or later
+    ///   library accepts each, and a 0.12.x library refuses each with <c>JXL_ENC_ERROR</c>, as the unit's remarks
+    ///   say. A wrong id would be refused by 0.13.0 too, or would set another option.
+    /// </summary>
+    [ Test ]
+    procedure Test_FrameSettings_OptionsNewIn013_AcceptedFrom013RefusedBefore;
+    /// <summary>
     ///   Proves <c>JxlColorEncodingSetToSRGB</c> writes the sRGB enums and the D65 white point double where the Delphi
     ///   record reads them.
     /// </summary>
@@ -619,6 +627,40 @@ begin
     Assert.AreEqual( Ord( JXL_ORIENT_IDENTITY ), Ord( rInfo.orientation ), 'orientation' );
   finally
     JxlDecoderDestroy( pDecoder );
+  end;
+
+end;
+
+procedure TTestJxlApi.Test_FrameSettings_OptionsNewIn013_AcceptedFrom013RefusedBefore;
+begin
+
+  JxlCheckLibrary;
+
+  var iExpected: Integer := Ord( JXL_ENC_ERROR );
+
+  if JxlEncoderVersion >= 13000 then
+    iExpected := Ord( JXL_ENC_SUCCESS );
+
+  var pEncoder := JxlEncoderCreate( nil );
+
+  try
+    var pSettings := JxlEncoderFrameSettingsCreate( pEncoder, nil );
+
+    Assert.IsNotNull( pSettings, 'frame settings' );
+    var iStripAlpha: Integer := Ord( JxlEncoderFrameSettingsSetOption( pSettings, JXL_ENC_FRAME_SETTING_STRIP_ALPHA, 2 ) );
+    var iReconLfs: Integer   := Ord( JxlEncoderFrameSettingsSetOption( pSettings, JXL_ENC_FRAME_SETTING_JPEG_RECON_LFS, 1 ) );
+
+    Assert.AreEqual( iExpected, iStripAlpha, Format( 'STRIP_ALPHA = 2 on libjxl %d', [ Integer( JxlEncoderVersion ) ] ) );
+    Assert.AreEqual( iExpected, iReconLfs, Format( 'JPEG_RECON_LFS = 1 on libjxl %d', [ Integer( JxlEncoderVersion ) ] ) );
+
+    // Out of range for both, so an id that reached some other option would not be refused here by chance.
+    var iStripAlpha99: Integer := Ord( JxlEncoderFrameSettingsSetOption( pSettings, JXL_ENC_FRAME_SETTING_STRIP_ALPHA, 99 ) );
+    var iReconLfs99: Integer   := Ord( JxlEncoderFrameSettingsSetOption( pSettings, JXL_ENC_FRAME_SETTING_JPEG_RECON_LFS, 99 ) );
+
+    Assert.AreEqual( Integer( Ord( JXL_ENC_ERROR ) ), iStripAlpha99, 'STRIP_ALPHA = 99 is out of range' );
+    Assert.AreEqual( Integer( Ord( JXL_ENC_ERROR ) ), iReconLfs99, 'JPEG_RECON_LFS = 99 is out of range' );
+  finally
+    JxlEncoderDestroy( pEncoder );
   end;
 
 end;
@@ -1161,6 +1203,8 @@ begin
   ExpectValue( 'JXL_ENC_FRAME_SETTING_USE_FULL_IMAGE_HEURISTICS', Ord( JXL_ENC_FRAME_SETTING_USE_FULL_IMAGE_HEURISTICS ), 38 );
   ExpectValue( 'JXL_ENC_FRAME_SETTING_DISABLE_PERCEPTUAL_HEURISTICS', Ord( JXL_ENC_FRAME_SETTING_DISABLE_PERCEPTUAL_HEURISTICS ), 39 );
   ExpectValue( 'JXL_ENC_FRAME_SETTING_OUTPUT_MODE', Ord( JXL_ENC_FRAME_SETTING_OUTPUT_MODE ), 40 );
+  ExpectValue( 'JXL_ENC_FRAME_SETTING_STRIP_ALPHA', Ord( JXL_ENC_FRAME_SETTING_STRIP_ALPHA ), 41 );
+  ExpectValue( 'JXL_ENC_FRAME_SETTING_JPEG_RECON_LFS', Ord( JXL_ENC_FRAME_SETTING_JPEG_RECON_LFS ), 42 );
   ExpectValue( 'JXL_ENC_FRAME_SETTING_FILL_ENUM', Ord( JXL_ENC_FRAME_SETTING_FILL_ENUM ), 65535 );
   AssertNoMismatches;
 

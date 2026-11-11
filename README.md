@@ -8,10 +8,10 @@ shared libraries; nothing is reimplemented in Pascal.
 or the JPEG committee. "JPEG XL" and "libjxl" refer to their work; problems in libjxl itself belong to
 [its issue tracker](https://github.com/libjxl/libjxl/issues).
 
-- **Version 1.0.0** of the binding (its own version, independent of libjxl's).
+- **Version 1.1.0** of the binding (its own version, independent of libjxl's).
 - **Delphi 13 (RAD Studio 13 Florence) or later**, VCL, **Win32 and Win64**.
-- **libjxl 0.12.0 or later.** Binding 1.0.0 is tested against the official libjxl **v0.12.0** Windows release
-  (x64 and x86).
+- **libjxl 0.12.0 or later.** Binding 1.1.0 is tested against the official libjxl **v0.13.0** Windows release
+  (x64 and x86), and against v0.12.0 for the minimum.
 - Depends only on the Delphi RTL and VCL (the package requires `rtl`, `vcl` and `vclimg`). The tests use DUnitX, which
   ships with Delphi.
 - Licence: BSD 3-Clause (`LICENSE`). libjxl is licensed separately; see [Licences](#licences).
@@ -38,7 +38,7 @@ or the JPEG committee. "JPEG XL" and "libjxl" refer to their work; problems in l
 
 The binding needs libjxl's DLLs, built for the same platform as your executable. Any of these works:
 
-1. **The official libjxl release** (recommended): [libjxl v0.12.0](https://github.com/libjxl/libjxl/releases/tag/v0.12.0),
+1. **The official libjxl release** (recommended): [libjxl v0.13.0](https://github.com/libjxl/libjxl/releases/tag/v0.13.0),
    assets `jxl-x64-windows.zip` (Win64) and `jxl-x86-windows.zip` (Win32). The DLLs the binding needs are in
    `x64-windows\bin` / `x86-windows\bin`: `jxl.dll`, `jxl_threads.dll`, `jxl_cms.dll`, `brotlicommon.dll`,
    `brotlidec.dll` and `brotlienc.dll` (the other DLLs there belong to libjxl's command-line tools). Their SHA-256,
@@ -46,12 +46,12 @@ The binding needs libjxl's DLLs, built for the same platform as your executable.
 
    | DLL | x64 (`jxl-x64-windows.zip`) | x86 (`jxl-x86-windows.zip`) |
    |---|---|---|
-   | `jxl.dll` | `b0a7f7721836359b29841cca0f15969e85bd386344f9ee0775292089bd3bcfda` | `15fa1f1ae3cac68cebcbf60976ed146b9d5bc20b60f12706e73a48b5b5009d4d` |
-   | `jxl_threads.dll` | `2aa59fe1ed74715b7160b29c3ca4c3dc398212a0450d4b292c7174fa65305928` | `876794fce92972d486cd18c4694ea53ebbc7475a0488c90e6226f3e038d3ea31` |
-   | `jxl_cms.dll` | `cf4d1e872fe0730b0a39d34cc8414fbf9a4c85424708c1552de270330ec8ae51` | `99d50590b561fc1ae12ec5ea19c97fdfdd43a4c11df3b40ed9a8b0450c363c4d` |
-   | `brotlicommon.dll` | `b6a024f4a3d82dc80b8faad898ca4637fe6fc8e4e65042b6036d53a0d933bcb1` | `1e6756921bb6e98cae6e327b4a80aa702f43fbe6c5da585df9b6d0cdd2273650` |
-   | `brotlidec.dll` | `6155edcd8dbb15e020d7f157074a9e3d4cec93d46d949192d23edcd37d1783d7` | `b956b61b427682b376cadf150c2030a931c4a0d22c95c6f8d7f1a3f7473e4dbf` |
-   | `brotlienc.dll` | `02db3121417982f3cc4871fb487e2356a4ac233c1b9eafeaaacfc0341f5ccaa2` | `ed7a7190c404acf340afe9c73f5dd9b2a696a227dba4bed018383bc0ec2daee8` |
+   | `jxl.dll` | `abcc2145cb3838e753efd9748174868773e6102ae010ae8a408c9db101bd7c6a` | `1941ad739d626468df286e7c85c1e1ada8b3551e7b587b1dc4a62e0aeb8f833c` |
+   | `jxl_threads.dll` | `9d82803b23ec66415677e08ee86e915f4557777ed20dffd11c348376f8d94e3c` | `d4111aefc0fa3c7c241deda8f87f570c88da71c8055637307a1d7abfe0f3b6ee` |
+   | `jxl_cms.dll` | `11320fb72d524a40d26a9612012175f0b846759cb071ed1b0ec5c44a48d328a1` | `13b6080846837fb62e566875c47ddee1e72b52f9ec38f218e2871032473b700c` |
+   | `brotlicommon.dll` | `2f302085531b2b35695ce265d2809e1e5c3864c629f0d88fe7a01f1cb35ebe09` | `eab9c2cf02aaf22c7d9fb29e5aa0d47c08d598e7bab5436b1e856391fd1e176c` |
+   | `brotlidec.dll` | `e690802f3f9b25626b0460ab0629702e7fe26920413d00399d290d4a13dd6919` | `4ea13fd250b94f1f2bcb10dfc5d60393d01e8ec7b77b75551a80311cc663bda9` |
+   | `brotlienc.dll` | `d393e6756488e0d1a71de8e66e6885c08515c7ff1e92b2014b847ae260ab14bf` | `1f5e265ac92cc34aa30db2ca815726979af3e7897832c71bf83edbb19c47c52e` |
 
    These DLLs link the Microsoft Visual C++ runtime dynamically: the target machine needs the
    [Visual C++ Redistributable](https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist) (x64 or x86), or
@@ -59,31 +59,35 @@ The binding needs libjxl's DLLs, built for the same platform as your executable.
 2. **This repository's releases** carry a convenience copy of exactly those six DLLs per architecture, byte-identical
    to upstream's (same SHA-256 as above), with libjxl's licence, patent grant and the third-party licences from the
    official archive. Prefer upstream's page when you can.
-3. **One self-contained `jxl.dll` (Win64)**, built from the unmodified libjxl v0.12.0 source by
-   `SingleDll/Build-JxlDll.ps1` and attached to this repository's releases as `libjxl-0.12.0-single-dll-x64.zip`.
+3. **One self-contained `jxl.dll` (Win64 or Win32)**, built from the unmodified libjxl v0.13.0 source by
+   `SingleDll/Build-JxlDll.ps1` and attached to this repository's releases as `libjxl-0.13.0-single-dll-x64.zip` and
+   `libjxl-0.13.0-single-dll-x86.zip`.
    It links libjxl, its CMS, its thread pool, Brotli, Highway and the C runtime into one file that imports only
    `KERNEL32.dll`: deploy that one DLL, with no Visual C++ Redistributable. The binding detects this layout by
    itself. It is not an official libjxl binary, so its `BUILD-INFO.txt` records the tag, commit, submodules and
-   toolchain, and you can rebuild it yourself (below). SHA-256 of the release build:
+   toolchain, and you can rebuild it yourself (below). SHA-256 of the release builds:
 
    | File | SHA-256 |
    |---|---|
-   | `jxl.dll` | `a45cb3551dd4ec7a1881741476cf6f240f76ca8a3be23f50603e15674d61a560` |
-   | `libjxl-0.12.0-single-dll-x64.zip` | `9390c7a610994cd8e849393ea305b865e9d2c8fdb9c2d5b8a34bae3c4d94c4a0` |
+   | `jxl.dll` (x64) | `78735d3699b546690eb0a41e02849ef68d2480be46fb8e72e07176d9876f8899` |
+   | `libjxl-0.13.0-single-dll-x64.zip` | `c10bb083e72a144ce95030230716239d5bcc2dc2d897ceeb862f1721a63cfe74` |
+   | `jxl.dll` (x86) | `21698ad29c7a7532a592574bcb7b10975e8cb7e856e621662afd2fd02114fea2` |
+   | `libjxl-0.13.0-single-dll-x86.zip` | `ebf47a4ce66118d21cf9edf2f33b463eafc811f8cffd23308c8ee511e53c1260` |
 
    To build it yourself (Visual Studio 2022 or 2026, or its Build Tools, with the C++ workload and both clang
    components: "C++ Clang Compiler for Windows" and "MSBuild support for LLVM (clang-cl) toolset"; git; and PowerShell 7,
    `pwsh`, which the script requires):
 
    ```powershell
-   .\SingleDll\Build-JxlDll.ps1                 # Win64, libjxl v0.12.0
-   .\SingleDll\Build-JxlDll.ps1 -Ref v0.12.1    # a later release, when there is one
+   .\SingleDll\Build-JxlDll.ps1                 # Win64, libjxl v0.13.0
+   .\SingleDll\Build-JxlDll.ps1 -Arch Win32     # Win32
+   .\SingleDll\Build-JxlDll.ps1 -Ref v0.13.1    # a later release, when there is one
    ```
 
    It clones libjxl at the tag into `.\libjxl-single-dll`, builds, checks the DLL (machine type, hardening flags,
    imports, exports against libjxl's public headers) and writes the zip and a separate zip with `jxl.pdb` to
    `libjxl-single-dll\dist`. A rebuild with a different compiler version gives a different SHA-256. `-Arch Win32`
-   builds an x86 DLL the same way; no x86 single DLL is published yet.
+   builds the x86 DLL the same way.
 4. **vcpkg:** `vcpkg install libjxl:x64-windows` (or `x86-windows`); the DLLs are in `installed\<triplet>\bin`.
 5. **Build libjxl from source** with CMake and MSVC or clang-cl, once per platform
    ([BUILDING.md](https://github.com/libjxl/libjxl/blob/main/BUILDING.md); `git submodule update --init --recursive`
@@ -126,7 +130,7 @@ them.
 
 ## The import units
 
-The `Jxl.Api.*` units mirror the libjxl 0.12.0 C headers name for name, so a header change maps line for line:
+The `Jxl.Api.*` units mirror the libjxl 0.13.0 C headers name for name, so a header change maps line for line:
 functions keep their C names (`JxlDecoderCreate`), records keep their C names (`JxlBasicInfo`) with a Pascal alias
 (`TJxlBasicInfo`) and pointer type (`PJxlBasicInfo`), and enumerations keep their C names and explicit C values. C
 parameters named `type` or `label` become `type_` / `label_`.
@@ -149,8 +153,9 @@ parameters named `type` or `label` become `type_` / `label_`.
 `JxlGainMapGetBundleSize`, `JxlGainMapWriteBundle`, `JxlGainMapReadBundle` (`gain_map.h`) and `JxlICCProfileEncode`,
 `JxlICCProfileDecode` (`compressed_icc.h`). The headers mark them `JXL_EXPORT`, but their code is built into the
 internal `jxl_extras` library, not into the DLLs, so no libjxl DLL exports them. The C++ headers (`*_cxx.h`) have
-no C ABI and are not bound. Encoder options added to libjxl after 0.12.0 are added here when a libjxl release includes
-them.
+no C ABI and are not bound. The two encoder options libjxl 0.13.0 added (`JXL_ENC_FRAME_SETTING_STRIP_ALPHA`,
+`JXL_ENC_FRAME_SETTING_JPEG_RECON_LFS`) are bound; libjxl 0.12.x refuses them with `JXL_ENC_ERROR`. Options added after
+0.13.0 are added here when a libjxl release includes them.
 
 ## Using the VCL unit
 
@@ -268,7 +273,7 @@ the defaults when it is created, so `TPicture` uses the defaults). Every field m
 4. Run `Tests/Win64/Release/LibJxlTests.exe` (or `Win32`). It writes `LibJxlTests-results.xml` (NUnit format) beside
    itself. Tests whose data is missing are reported as ignored, with a message naming the variable to set.
 
-The suite (103 tests) covers record layouts and every enumerator value against the C headers, the library checks
+The suite (104 tests) covers record layouts and every enumerator value against the C headers, the library checks
 (safe loading, export tables, version, both DLL layouts through `JxlCheckLibraryFolder`), the memory budget and every
 resource limit, the JPEG pre-check, decoding against reference PNGs, lossless and lossy encoding, lossless JPEG
 recompression with byte-exact reconstruction, `TPicture` integration, corrupt input, the colour encoding
@@ -312,7 +317,7 @@ file carries that header.
 
 It is a separate work from libjxl and contains none of libjxl's code. The libjxl DLLs you obtain to use it are
 licensed by the JPEG XL Project under the BSD 3-Clause licence, with an additional patent grant from Google; copies
-of both, from libjxl v0.12.0, are in `third-party/libjxl/` (see `THIRD-PARTY-NOTICES.md`). Ship them, and the
+of both, from libjxl v0.12.0 (unchanged in v0.13.0), are in `third-party/libjxl/` (see `THIRD-PARTY-NOTICES.md`). Ship them, and the
 licences in the `licenses` folder of libjxl's release archive, with the DLLs.
 
 ## Contributing and security

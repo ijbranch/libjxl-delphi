@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- (2026-11-12) `Test_FrameSettings_OptionsNewIn013_AcceptedFrom013RefusedBefore` and two enumerator value checks, for
+  the two encoder options libjxl 0.13.0 added — `TestJxl.Api.pas`.  The suite is now 104 tests; it passes against
+  libjxl 0.13.0 (the options are accepted) and 0.12.0 (they are refused), official DLLs and the single DLL, Win64 and
+  Win32.  The product change is in the repository's change log.
 - (2026-10-25) **This change log** — `CHANGELOG.md`.  The suite's own record, per the estate rule that every test
   suite has one; test-only history moved in from `..\..\CHANGELOG.md` ( 7 entries ).
 - (2026-10-16) Delphi binding tests: new fixture `TTestJxlCancellation` (6 tests) and 5 colour-encoding tests in

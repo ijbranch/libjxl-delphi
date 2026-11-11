@@ -58,7 +58,8 @@ const
   JPEGXL_PATCH_VERSION = 0;
   /// <summary>
   ///   Oldest libjxl version (as <c>JxlDecoderVersion</c> reports it: MAJOR * 1000000 + MINOR * 1000 + PATCH) the
-  ///   binding accepts: 0.12.0, the release whose headers it mirrors and whose DLLs export every function it imports.
+  ///   binding accepts: 0.12.0, the oldest release whose DLLs export every function it imports. The units mirror the
+  ///   0.13.0 headers; what 0.13.0 added is two encoder option ids, which 0.12.x refuses.
   /// </summary>
   JXL_MIN_VERSION = 12000;
 

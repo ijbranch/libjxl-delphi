@@ -77,9 +77,10 @@ type
   ///   <c>JXL_ENC_FRAME_SETTING_BROTLI_EFFORT</c>, <c>JXL_ENC_FRAME_SETTING_BUFFERING</c> and the
   ///   <c>JXL_ENC_FRAME_SETTING_JPEG_*</c> options for JPEG recompression. The meaning and range of every id is
   ///   documented at the matching enumerator in <c>jxl/encode.h</c>. <c>JXL_ENC_FRAME_SETTING_FILL_ENUM</c> is not an
-  ///   option. The ids are those of libjxl 0.12.0; the ids libjxl's development branch has added since
-  ///   (<c>JXL_ENC_FRAME_SETTING_STRIP_ALPHA</c> = 41, <c>JXL_ENC_FRAME_SETTING_JPEG_RECON_LFS</c> = 42) will be added
-  ///   when a libjxl release includes them.
+  ///   option. The ids are those of libjxl 0.13.0. Two of them are new in 0.13.0, and libjxl 0.12.x refuses them with
+  ///   <c>JXL_ENC_ERROR</c>: <c>JXL_ENC_FRAME_SETTING_STRIP_ALPHA</c> (-1 default, 0 never, 1 always, 2 when fully
+  ///   opaque) and <c>JXL_ENC_FRAME_SETTING_JPEG_RECON_LFS</c> (-1 default, 0 off, 1 on: LF smoothing for lossless JPEG
+  ///   recompression).
   /// </remarks>
   JxlEncoderFrameSettingId = (
     JXL_ENC_FRAME_SETTING_EFFORT = 0,
@@ -123,6 +124,8 @@ type
     JXL_ENC_FRAME_SETTING_USE_FULL_IMAGE_HEURISTICS = 38,
     JXL_ENC_FRAME_SETTING_DISABLE_PERCEPTUAL_HEURISTICS = 39,
     JXL_ENC_FRAME_SETTING_OUTPUT_MODE = 40,
+    JXL_ENC_FRAME_SETTING_STRIP_ALPHA = 41,
+    JXL_ENC_FRAME_SETTING_JPEG_RECON_LFS = 42,
     JXL_ENC_FRAME_SETTING_FILL_ENUM = 65535
   );
 
